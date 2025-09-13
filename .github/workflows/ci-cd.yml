@@ -68,28 +68,11 @@ jobs:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: 'temurin'
 
-    - name: Cache Maven dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-
     - name: Build with Maven
       run: mvn clean package -DskipTests
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: jar-artifacts
         path: target/*.jar
-
-    - name: Comment on commit
-      uses: actions/github-script@v6
-      with:
-        script: |
-          github.rest.repos.createCommitComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            commit_sha: context.sha,
-            body: '✅ Build completed successfully! Artifacts uploaded.'
-          })
