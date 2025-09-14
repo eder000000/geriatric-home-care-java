@@ -1,1 +1,6 @@
+com/geriatriccare/repository/UserRepository.class
 com/geriatriccare/GeriatricHomeCareApplication.class
+com/geriatriccare/entity/Patient.class
+com/geriatriccare/entity/UserRole.class
+com/geriatriccare/config/JpaAuditingConfig.class
+com/geriatriccare/entity/User.class
