@@ -1,59 +1,45 @@
 package com.geriatriccare.entity;
 
-/**
- * Enum defining user roles in the geriatric care system.
- * Each role has specific permissions and access levels.
- */
-
 public enum UserRole {
-     /**
-     * System administrator with full access to all features
-     */
+    OWNER("Owner"),
     ADMIN("Administrator"),
-    
-    /**
-     * Professional caregiver who provides direct patient care
-     */
     CAREGIVER("Caregiver"),
-    
-    /**
-     * Family member with limited access to patient information
-     */
     FAMILY("Family Member"),
-    
-    /**
-     * Patient with access to their own information
-     */
     PATIENT("Patient");
-
+    
     private final String displayName;
-
+    
     UserRole(String displayName) {
         this.displayName = displayName;
     }
-
+    
     public String getDisplayName() {
         return displayName;
     }
-
-    /**
-     * Check if this role has administrative privileges
-     */
-    public boolean hasAdminPrivileges() {
-        return this == ADMIN;
+    
+    @Override
+    public String toString() {
+        return displayName;
     }
-
+    
     /**
-     * Check if this role can provide care
+     * Get role hierarchy level (higher number = more privileges)
      */
-    public boolean canProvideCare() {
-        return this == ADMIN || this == CAREGIVER;
+    public int getHierarchyLevel() {
+        switch (this) {
+            case OWNER: return 5;
+            case ADMIN: return 4;
+            case CAREGIVER: return 3;
+            case FAMILY: return 2;
+            case PATIENT: return 1;
+            default: return 0;
+        }
     }
-
+    
     /**
-     * Check if this role can view patient data
+     * Check if this role has higher or equal privileges than another role
      */
-    public boolean canViewPatientData() {
-        return this == ADMIN || this == CAREGIVER || this == FAMILY;
+    public boolean hasPrivilegeOver(UserRole otherRole) {
+        return this.getHierarchyLevel() >= otherRole.getHierarchyLevel();
     }
 }
