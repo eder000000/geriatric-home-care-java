@@ -44,4 +44,20 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     @Query("SELECT u FROM User u LEFT JOIN u.patients p WHERE u.role = :role AND u.isActive = true GROUP BY u ORDER BY COUNT(p) ASC")
     List<User> findCaregiversOrderByPatientCount(@Param("role") UserRole role);
+
+    // Check if user exists by role
+boolean existsByRoleAndIsActiveTrue(UserRole role);
+
+
+// Find all caregivers
+@Query("SELECT u FROM User u WHERE u.role = 'CAREGIVER' AND u.isActive = true")
+List<User> findAllActiveCaregivers();
+
+// Find all family members
+@Query("SELECT u FROM User u WHERE u.role = 'FAMILY' AND u.isActive = true")
+List<User> findAllActiveFamilyMembers();
+
+// Find all admins
+@Query("SELECT u FROM User u WHERE u.role IN ('OWNER', 'ADMIN') AND u.isActive = true")
+List<User> findAllActiveAdmins();
 }

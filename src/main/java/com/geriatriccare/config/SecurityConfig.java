@@ -1,7 +1,8 @@
 package com.geriatriccare.config;
 
-import com.geriatriccare.security.JwtAuthenticationFilter;
 import com.geriatriccare.security.CustomUserDetailsService;
+import com.geriatriccare.security.JwtAuthenticationEntryPoint;
+import com.geriatriccare.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,66 +27,71 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-
+    
     @Autowired
-    private CustomUserDetailsService userDetailsService;
-
+    private CustomUserDetailsService customUserDetailsService;
+    
     @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
+    private JwtAuthenticationEntryPoint unauthorizedHandler;
+    
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
+        return new BCryptPasswordEncoder();
     }
-
+    
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setUserDetailsService(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
-
+    
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/health/**").permitAll()
-                .requestMatchers("/error").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/health", "/actuator/health").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 
-                // Admin only endpoints
-                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                
-                // Patient management - Admin and Caregiver access
-                .requestMatchers("/api/v1/patients/**").hasAnyRole("ADMIN", "CAREGIVER")
-                
-                // Care plans - Admin and Caregiver access
-                .requestMatchers("/api/v1/care-plans/**").hasAnyRole("ADMIN", "CAREGIVER")
+                // Role-based endpoints - Updated with OWNER role
+                .requestMatchers("/api/owner/**").hasRole("OWNER")
+                .requestMatchers("/api/admin/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/caregiver/**").hasAnyRole("OWNER", "ADMIN", "CAREGIVER")
+                .requestMatchers("/api/family/**").hasAnyRole("OWNER", "ADMIN", "CAREGIVER", "FAMILY")
+                .requestMatchers("/api/patient/**").hasAnyRole("OWNER", "ADMIN", "CAREGIVER", "FAMILY", "PATIENT")
                 
                 // All other requests need authentication
                 .anyRequest().authenticated()
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+            );
+        
+        http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        
         return http.build();
     }
-
+    
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         
