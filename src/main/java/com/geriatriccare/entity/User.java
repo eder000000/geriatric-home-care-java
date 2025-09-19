@@ -99,9 +99,6 @@ public class User {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public List<Patient> getPatients() { return patients; }
-    public void setPatients(List<Patient> patients) { this.patients = patients; }
-
     // Business methods
     public String getFullName() {
         return firstName + " " + lastName;

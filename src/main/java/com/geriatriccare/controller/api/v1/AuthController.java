@@ -1,102 +1,210 @@
 package com.geriatriccare.controller.api.v1;
 
-import com.geriatriccare.dto.AuthRequest;
 import com.geriatriccare.dto.AuthResponse;
-import com.geriatriccare.dto.UserRegistrationRequest;
-import com.geriatriccare.entity.User;
-import com.geriatriccare.entity.UserRole;
-import com.geriatriccare.repository.UserRepository;
-import com.geriatriccare.security.JwtTokenUtil;
+import com.geriatriccare.dto.ErrorResponse;
+import com.geriatriccare.dto.LoginRequest;
+import com.geriatriccare.dto.RegisterRequest;
+import com.geriatriccare.security.UserPrincipal;
+import com.geriatriccare.service.AuthService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/v1/auth")
-@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
-
+    
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest authRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    authRequest.getEmail(), 
-                    authRequest.getPassword()
-                )
-            );
-
-            User user = userRepository.findByEmail(authRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-            String token = jwtTokenUtil.generateToken(user);
-
-            return ResponseEntity.ok(new AuthResponse(token, user.getEmail(), 
-                user.getRole().name(), user.getFullName()));
-
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.badRequest()
-                .body(new ErrorResponse("Invalid email or password"));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("Authentication failed"));
-        }
-    }
-
+    private AuthService authService;
+    
+    /**
+     * Register a new user
+     */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationRequest request) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
-            if (userRepository.existsByEmail(request.getEmail())) {
-                return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Email already exists"));
-            }
-
-            User user = new User();
-            user.setEmail(request.getEmail());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-            user.setFirstName(request.getFirstName());
-            user.setLastName(request.getLastName());
-            user.setRole(UserRole.valueOf(request.getRole().toUpperCase()));
-            user.setIsActive(true);
-
-            userRepository.save(user);
-
-            return ResponseEntity.ok(new SuccessResponse("User registered successfully"));
-
+            logger.info("Registration request received for email: {}", registerRequest.getEmail());
+            
+            AuthResponse authResponse = authService.registerUser(registerRequest);
+            
+            logger.info("User registered successfully: {}", registerRequest.getEmail());
+            return ResponseEntity.ok(authResponse);
+            
+        } catch (RuntimeException e) {
+            logger.error("Registration failed: {}", e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Registration Failed",
+                e.getMessage(),
+                "/api/auth/register"
+            );
+            return ResponseEntity.badRequest().body(errorResponse);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("Registration failed"));
+            logger.error("Unexpected error during registration: {}", e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                "An unexpected error occurred during registration",
+                "/api/auth/register"
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
-
-    // Response classes
-    public static class ErrorResponse {
-        private String message;
-        public ErrorResponse(String message) { this.message = message; }
-        public String getMessage() { return message; }
+    
+    /**
+     * Authenticate user login
+     */
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            logger.info("Login request received for email: {}", loginRequest.getEmail());
+            
+            AuthResponse authResponse = authService.authenticateUser(loginRequest);
+            
+            logger.info("User logged in successfully: {}", loginRequest.getEmail());
+            return ResponseEntity.ok(authResponse);
+            
+        } catch (RuntimeException e) {
+            logger.error("Login failed: {}", e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Authentication Failed",
+                e.getMessage(),
+                "/api/auth/login"
+            );
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        } catch (Exception e) {
+            logger.error("Unexpected error during login: {}", e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                "An unexpected error occurred during login",
+                "/api/auth/login"
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
-
-    public static class SuccessResponse {
-        private String message;
-        public SuccessResponse(String message) { this.message = message; }
-        public String getMessage() { return message; }
+    
+    /**
+     * Get current user profile
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        try {
+            if (userPrincipal == null) {
+                ErrorResponse errorResponse = new ErrorResponse(
+                    HttpStatus.UNAUTHORIZED.value(),
+                    "Unauthorized",
+                    "Authentication required",
+                    "/api/auth/me"
+                );
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            }
+            
+            Map<String, Object> userInfo = new HashMap<>();
+            userInfo.put("id", userPrincipal.getId());
+            userInfo.put("firstName", userPrincipal.getFirstName());
+            userInfo.put("lastName", userPrincipal.getLastName());
+            userInfo.put("email", userPrincipal.getEmail());
+            userInfo.put("authorities", userPrincipal.getAuthorities());
+            
+            return ResponseEntity.ok(userInfo);
+            
+        } catch (Exception e) {
+            logger.error("Error getting current user: {}", e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                "An unexpected error occurred",
+                "/api/auth/me"
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
+    /**
+     * Refresh JWT token
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        try {
+            if (userPrincipal == null) {
+                ErrorResponse errorResponse = new ErrorResponse(
+                    HttpStatus.UNAUTHORIZED.value(),
+                    "Unauthorized",
+                    "Authentication required",
+                    "/api/auth/refresh"
+                );
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            }
+            
+            AuthResponse authResponse = authService.refreshToken(userPrincipal.getEmail());
+            return ResponseEntity.ok(authResponse);
+            
+        } catch (RuntimeException e) {
+            logger.error("Token refresh failed: {}", e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Token Refresh Failed",
+                e.getMessage(),
+                "/api/auth/refresh"
+            );
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        } catch (Exception e) {
+            logger.error("Unexpected error during token refresh: {}", e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                "An unexpected error occurred during token refresh",
+                "/api/auth/refresh"
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
+    /**
+     * Check if email is available
+     */
+    @GetMapping("/check-email")
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
+        try {
+            boolean exists = authService.existsByEmail(email);
+            Map<String, Object> response = new HashMap<>();
+            response.put("email", email);
+            response.put("available", !exists);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            logger.error("Error checking email availability: {}", e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                "An unexpected error occurred",
+                "/api/auth/check-email"
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
+    /**
+     * Logout (client-side token removal)
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Logged out successfully");
+        return ResponseEntity.ok(response);
     }
 }

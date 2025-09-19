@@ -64,11 +64,13 @@ public class SecurityConfig {
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                // Public endpoints
-                .requestMatchers("/api/auth/**").permitAll()
+                // Public endpoints - these should NOT require authentication
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/check-email").permitAll()
+                .requestMatchers("/api/test/public").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/health", "/actuator/health").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/error").permitAll()
                 
                 // Role-based endpoints - Updated with OWNER role
                 .requestMatchers("/api/owner/**").hasRole("OWNER")

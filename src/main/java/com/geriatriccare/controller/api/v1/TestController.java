@@ -1,4 +1,4 @@
-package com.geriatriccare.controller;
+package com.geriatriccare.controller.api.v1;
 
 import com.geriatriccare.security.UserPrincipal;
 import org.springframework.http.ResponseEntity;

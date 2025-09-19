@@ -1,33 +1,45 @@
-server:
-  port: 8080
-
 spring:
-  application:
-    name: geriatric-home-care-system
-  
   datasource:
-    url: jdbc:postgresql://ep-soft-sun-adwzcrki-pooler.c-2.us-east-1.aws.neon.tech:5432/neondb?sslmode=require
-    username: neondb_owner
-    password: npg_iMN4V6rfSawv
-    driver-class-name: org.postgresql.Driver
-    
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  h2:
+    console:
+      enabled: true
+  
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: create-drop
     show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        
-  security:
-    jwt:
-      secret-key: myVerySecureSecretKeyThatShouldBeAtLeast256BitsLongForHS256Algorithm
-      expiration-time: 86400000 # 24 hours in milliseconds
+    open-in-view: false
+    database-platform: org.hibernate.dialect.H2Dialect
+  
+  # Disable Thymeleaf template checking
+  thymeleaf:
+    check-template-location: false
 
+# JWT Configuration
+app:
+  jwt:
+    secret: bXlTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25UaGF0SXNTZWN1cmVFbm91Z2hGb3JITUFDMjU2QWxnb3JpdGht
+    expiration: 86400
+  
+  # Default Owner User Configuration
+  default:
+    owner:
+      email: owner@geriatriccare.com
+      password: Owner123!
+      firstName: System
+      lastName: Owner
+
+# Server Configuration
+server:
+  port: 8080
+
+# Logging
 logging:
   level:
     com.geriatriccare: DEBUG
-    org.springframework.security: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    org.springframework.security: DEBUG
