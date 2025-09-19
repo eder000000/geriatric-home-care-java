@@ -1,7 +1,6 @@
 package com.geriatriccare.repository;
 
 import com.geriatriccare.entity.Patient;
-import com.geriatriccare.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,49 +14,49 @@ import java.util.UUID;
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, UUID> {
     
-    /**
-     * Find all active patients
-     */
+    // Find by basic properties
     List<Patient> findByIsActiveTrue();
+    Optional<Patient> findByIdAndIsActiveTrue(UUID id);
     
-    /**
-     * Find patients assigned to a specific caregiver
-     */
-    List<Patient> findByAssignedCaregiverAndIsActiveTrue(User caregiver);
-    
-    /**
-     * Find patients by caregiver ID
-     */
-    List<Patient> findByAssignedCaregiver_IdAndIsActiveTrue(UUID caregiverId);
-    
-    /**
-     * Find patients without assigned caregiver
-     */
-    List<Patient> findByAssignedCaregiverIsNullAndIsActiveTrue();
-    
-    /**
-     * Search patients by name (case insensitive)
-     */
+    // Find by name (case insensitive)
     @Query("SELECT p FROM Patient p WHERE p.isActive = true AND " +
            "(LOWER(p.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR " +
            "LOWER(p.lastName) LIKE LOWER(CONCAT('%', :name, '%')))")
-    List<Patient> findByNameContaining(@Param("name") String name);
+    List<Patient> findByNameContainingIgnoreCase(@Param("name") String name);
     
-    /**
-     * Find patients by age range
-     */
+    // Find by first name
+    List<Patient> findByFirstNameContainingIgnoreCaseAndIsActiveTrue(String firstName);
+    
+    // Find by last name  
+    List<Patient> findByLastNameContainingIgnoreCaseAndIsActiveTrue(String lastName);
+    
+    // Find by date of birth
+    List<Patient> findByDateOfBirthAndIsActiveTrue(LocalDate dateOfBirth);
+    
+    // Find patients by age range
     @Query("SELECT p FROM Patient p WHERE p.isActive = true AND " +
-           "p.dateOfBirth BETWEEN :startDate AND :endDate")
-    List<Patient> findByDateOfBirthBetween(@Param("startDate") LocalDate startDate, 
-                                           @Param("endDate") LocalDate endDate);
+           "YEAR(CURRENT_DATE) - YEAR(p.dateOfBirth) BETWEEN :minAge AND :maxAge")
+    List<Patient> findByAgeBetween(@Param("minAge") int minAge, @Param("maxAge") int maxAge);
     
-    /**
-     * Count patients by caregiver
-     */
-    long countByAssignedCaregiverAndIsActiveTrue(User caregiver);
+    // Find patients by emergency contact
+    List<Patient> findByEmergencyContactContainingIgnoreCaseAndIsActiveTrue(String emergencyContact);
     
-    /**
-     * Find patients with emergency contact information
-     */
-    List<Patient> findByEmergencyContactIsNotNullAndIsActiveTrue();
+    // Find patients with medical conditions containing text
+    @Query("SELECT p FROM Patient p WHERE p.isActive = true AND " +
+           "LOWER(p.medicalConditions) LIKE LOWER(CONCAT('%', :condition, '%'))")
+    List<Patient> findByMedicalConditionsContaining(@Param("condition") String condition);
+    
+    // Count all active patients
+    @Query("SELECT COUNT(p) FROM Patient p WHERE p.isActive = true")
+    long countActivePatients();
+    
+    // Find patients created within date range
+    @Query("SELECT p FROM Patient p WHERE p.isActive = true AND p.createdAt BETWEEN :startDate AND :endDate")
+    List<Patient> findPatientsCreatedBetween(@Param("startDate") java.time.LocalDateTime startDate, 
+                                           @Param("endDate") java.time.LocalDateTime endDate);
+    
+    // Find elderly patients (over certain age)
+    @Query("SELECT p FROM Patient p WHERE p.isActive = true AND " +
+           "YEAR(CURRENT_DATE) - YEAR(p.dateOfBirth) >= :minAge")
+    List<Patient> findElderlyPatients(@Param("minAge") int minAge);
 }

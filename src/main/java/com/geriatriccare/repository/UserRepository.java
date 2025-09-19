@@ -4,7 +4,6 @@ import com.geriatriccare.entity.User;
 import com.geriatriccare.entity.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,50 +13,45 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
     
-    /**
-     * Find user by email address
-     */
+    // Find by email
     Optional<User> findByEmail(String email);
+    Optional<User> findByEmailAndIsActiveTrue(String email);
     
-    /**
-     * Find all active users
-     */
+    // Check if email exists
+    boolean existsByEmail(String email);
+    boolean existsByEmailAndIsActiveTrue(String email);
+    
+    // Find by ID and active status
+    Optional<User> findByIdAndIsActiveTrue(UUID id);
+    
+    // Find by role
+    List<User> findByRoleAndIsActiveTrue(UserRole role);
+    boolean existsByRoleAndIsActiveTrue(UserRole role);
+    
+    // Find all active users
     List<User> findByIsActiveTrue();
     
-    /**
-     * Find users by role
-     */
-    List<User> findByRole(UserRole role);
+    // Find all caregivers
+    @Query("SELECT u FROM User u WHERE u.role = 'CAREGIVER' AND u.isActive = true")
+    List<User> findAllActiveCaregivers();
     
-    /**
-     * Find active users by role
-     */
-    List<User> findByRoleAndIsActiveTrue(UserRole role);
+    // Find all family members
+    @Query("SELECT u FROM User u WHERE u.role = 'FAMILY' AND u.isActive = true")
+    List<User> findAllActiveFamilyMembers();
     
-    /**
-     * Check if email exists (for validation)
-     */
-    boolean existsByEmail(String email);
+    // Find all admins (including owners)
+    @Query("SELECT u FROM User u WHERE u.role IN ('OWNER', 'ADMIN') AND u.isActive = true")
+    List<User> findAllActiveAdmins();
     
-    /**
-     * Find caregivers with patient count
-     */
-    @Query("SELECT u FROM User u LEFT JOIN u.patients p WHERE u.role = :role AND u.isActive = true GROUP BY u ORDER BY COUNT(p) ASC")
-    List<User> findCaregiversOrderByPatientCount(@Param("role") UserRole role);
-
-    // Check if user exists by role
-boolean existsByRoleAndIsActiveTrue(UserRole role);
-
-
-// Find all caregivers
-@Query("SELECT u FROM User u WHERE u.role = 'CAREGIVER' AND u.isActive = true")
-List<User> findAllActiveCaregivers();
-
-// Find all family members
-@Query("SELECT u FROM User u WHERE u.role = 'FAMILY' AND u.isActive = true")
-List<User> findAllActiveFamilyMembers();
-
-// Find all admins
-@Query("SELECT u FROM User u WHERE u.role IN ('OWNER', 'ADMIN') AND u.isActive = true")
-List<User> findAllActiveAdmins();
+    // Find users by first name or last name (case insensitive)
+    @Query("SELECT u FROM User u WHERE u.isActive = true AND " +
+           "(LOWER(u.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR " +
+           "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :name, '%')))")
+    List<User> findByNameContainingIgnoreCase(String name);
+    
+    // Find users by role and name
+    @Query("SELECT u FROM User u WHERE u.role = :role AND u.isActive = true AND " +
+           "(LOWER(u.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR " +
+           "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :name, '%')))")
+    List<User> findByRoleAndNameContainingIgnoreCase(UserRole role, String name);
 }

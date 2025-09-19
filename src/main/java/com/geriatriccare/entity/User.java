@@ -57,8 +57,8 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "assignedCaregiver", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Patient> patients = new ArrayList<>();
+    @OneToMany(mappedBy = "caregiver", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PatientCaregiver> assignedPatients = new ArrayList<>();
 
     // Constructors
     public User() {}
