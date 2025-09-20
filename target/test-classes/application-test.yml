@@ -1,13 +1,21 @@
 spring:
+  profiles:
+    active: test
   datasource:
-    url: jdbc:postgresql://localhost:5432/test_geriatric_care
-    username: test_user
-    password: test_password
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
-  security:
-    user:
-      name: test
-      password: test
+    show-sql: false
+  h2:
+    console:
+      enabled: false
+
+# Disable JWT for tests
+app:
+  jwt:
+    secret: dGVzdFNlY3JldEtleUZvclRlc3RpbmdQdXJwb3Nlc09ubHk=
+    expiration: 3600
