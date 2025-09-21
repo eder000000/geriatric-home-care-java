@@ -117,3 +117,4 @@ target/classes/com/geriatriccare/service/DataInitializationService.class
 target/classes/com/geriatriccare/service/PatientRelationshipService.class
 target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
 target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+target/classes/com/geriatriccare/dto/PatientRequest.class
