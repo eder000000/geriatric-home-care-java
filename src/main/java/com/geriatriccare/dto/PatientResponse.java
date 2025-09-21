@@ -128,4 +128,28 @@ public class PatientResponse {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
+
+     public List<CaregiverSummary> getCaregivers() { 
+        return caregivers; 
+    }
+    
+    public void setCaregivers(List<CaregiverSummary> caregivers) { 
+        this.caregivers = caregivers; 
+    }
+    
+    public List<FamilyMemberSummary> getFamilyMembers() { 
+        return familyMembers; 
+    }
+    
+    public void setFamilyMembers(List<FamilyMemberSummary> familyMembers) { 
+        this.familyMembers = familyMembers; 
+    }
+    
+    public CaregiverSummary getPrimaryCaregiver() { 
+        return primaryCaregiver; 
+    }
+    
+    public void setPrimaryCaregiver(CaregiverSummary primaryCaregiver) { 
+        this.primaryCaregiver = primaryCaregiver; 
+    }
 }
