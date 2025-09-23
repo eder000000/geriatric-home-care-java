@@ -123,3 +123,10 @@ target/classes/com/geriatriccare/dto/summary/CaregiverSummary.class
 target/classes/com/geriatriccare/dto/summary/FamilyMemberSummary.class
 target/classes/com/geriatriccare/controller/PatientController.class
 target/classes/com/geriatriccare/service/PatientService.class
+target/classes/com/geriatriccare/controller/UserController.class
+target/classes/com/geriatriccare/dto/PasswordChangeRequest.class
+target/classes/com/geriatriccare/dto/UserResponse.class
+target/classes/com/geriatriccare/dto/UserUpdateRequest.class
+target/classes/com/geriatriccare/service/UserService.class
+target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
