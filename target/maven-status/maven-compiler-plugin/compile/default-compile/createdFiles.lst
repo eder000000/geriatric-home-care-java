@@ -1,9 +1,12 @@
+com/geriatriccare/dto/PatientRequest.class
 com/geriatriccare/security/JwtTokenUtil.class
 com/geriatriccare/repository/PatientFamilyMemberRepository.class
 com/geriatriccare/entity/CareTaskCategory.class
 com/geriatriccare/GeriatricHomeCareApplication.class
+com/geriatriccare/controller/PatientController.class
 com/geriatriccare/config/SecurityConfig.class
 com/geriatriccare/security/JwtAuthenticationEntryPoint.class
+com/geriatriccare/dto/PatientResponse.class
 com/geriatriccare/dto/AuthResponse.class
 com/geriatriccare/security/JwtAuthenticationFilter.class
 com/geriatriccare/controller/api/v1/AuthController.class
@@ -12,6 +15,7 @@ com/geriatriccare/security/CustomUserDetailsService.class
 com/geriatriccare/entity/CarePlan.class
 com/geriatriccare/security/UserPrincipal.class
 com/geriatriccare/service/DataInitializationService.class
+com/geriatriccare/dto/summary/CaregiverSummary.class
 com/geriatriccare/service/PatientRelationshipService.class
 com/geriatriccare/entity/Patient.class
 com/geriatriccare/entity/PatientFamilyMember.class
@@ -26,9 +30,11 @@ com/geriatriccare/entity/CareTaskFrequency.class
 com/geriatriccare/dto/LoginRequest.class
 com/geriatriccare/config/JpaAuditingConfig.class
 com/geriatriccare/entity/User.class
+com/geriatriccare/dto/summary/FamilyMemberSummary.class
 com/geriatriccare/security/JwtUtil.class
 com/geriatriccare/entity/PatientCaregiver$PatientCaregiverId.class
 com/geriatriccare/entity/CareTaskPriority.class
+com/geriatriccare/service/PatientService.class
 com/geriatriccare/repository/UserRepository.class
 com/geriatriccare/service/AuthService.class
 com/geriatriccare/entity/UserRole.class
