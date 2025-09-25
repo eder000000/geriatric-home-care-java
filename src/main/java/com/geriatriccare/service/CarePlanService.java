@@ -64,7 +64,6 @@ public class CarePlanService {
             
             // Validate caregiver role
             if (assignedCaregiver.getRole() != UserRole.CAREGIVER && 
-                assignedCaregiver.getRole() != UserRole.MANAGER &&
                 assignedCaregiver.getRole() != UserRole.ADMIN &&
                 assignedCaregiver.getRole() != UserRole.OWNER) {
                 throw new RuntimeException("Assigned user must have caregiver privileges");
@@ -79,7 +78,7 @@ public class CarePlanService {
         carePlan.setPriority(request.getPriority());
         carePlan.setStartDate(request.getStartDate());
         carePlan.setEndDate(request.getEndDate());
-        carePlan.setCreatedByUser(createdBy);
+        carePlan.setCreatedBy(createdBy);
         carePlan.setAssignedCaregiver(assignedCaregiver);
         carePlan.setStatus(CarePlanStatus.DRAFT);
         
@@ -145,7 +144,6 @@ public class CarePlanService {
                     .orElseThrow(() -> new RuntimeException("Assigned caregiver not found"));
             
             if (assignedCaregiver.getRole() != UserRole.CAREGIVER && 
-                assignedCaregiver.getRole() != UserRole.MANAGER &&
                 assignedCaregiver.getRole() != UserRole.ADMIN &&
                 assignedCaregiver.getRole() != UserRole.OWNER) {
                 throw new RuntimeException("Assigned user must have caregiver privileges");
@@ -290,20 +288,14 @@ public class CarePlanService {
             ));
         }
         
-        response.setCreatedBy(new CaregiverSummary(
-                carePlan.getCreatedByUser().getId(),
-                carePlan.getCreatedByUser().getFirstName(),
-                carePlan.getCreatedByUser().getLastName(),
-                carePlan.getCreatedByUser().getEmail(),
-                false
-        ));
-        
         // Care task summaries (will be implemented when we add task management)
-        response.setCareTasks(List.of()); // Empty for now
-        response.setTotalTasks(0);
-        response.setCompletedTasks(0);
-        response.setOverdueTasks(0);
-        
+        response.setCreatedBy(new CaregiverSummary(
+            carePlan.getCreatedBy().getId(),     // or whatever the actual method is
+            carePlan.getCreatedBy().getFirstName(),
+            carePlan.getCreatedBy().getLastName(),
+            carePlan.getCreatedBy().getEmail(),
+            false
+        ));
         return response;
     }
 }
