@@ -1,29 +1,28 @@
 package com.geriatriccare;
 
+import org.junit.jupiter.api.Test;  // CORRECT IMPORT
+import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
 @SpringBootTest
- class TestFrameworkVerification {
+public class TestFrameworkVerification {  // Added public
     
     @Test
-     void contextLoads() {
-        // This test will pass if the application context loads successfully
+    void contextLoads() {
         assertThat(true).isTrue();
     }
-
+    
     @Test
-    void assertWorks() {
-        // Verify that assertJ is working
-        String testString = "Testing assertJ";
-        assertThat(testString).startsWith("Testing").endsWith("assertJ").contains("assert");
+    void assertJWorks() {
+        String testString = "Testing Framework";
+        assertThat(testString)
+            .isNotNull()
+            .startsWith("Testing")
+            .endsWith("Framework");
     }
-
+    
     @Test
-     void junitJupiterWorks() {
-        // Verify that JUnit 5 is workin
+    void junitJupiterWorks() {
         int result = 2 + 2;
         assertThat(result).isEqualTo(4);
     }
