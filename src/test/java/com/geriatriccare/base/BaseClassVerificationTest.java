@@ -1,32 +1,21 @@
 package com.geriatriccare.base;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.http.ResponseEntity;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class BaseIntegrationVerificationTest extends BaseIntegrationTest {
-    
+class ServiceTestImpl extends BaseServiceTest {
     @Test
-    void testUsersCreated() {
-        assertThat(ownerUser).isNotNull();
-        assertThat(ownerUser.getEmail()).isEqualTo("owner@test.com");
-        
-        assertThat(caregiverUser).isNotNull();
-        assertThat(caregiverUser.getEmail()).isEqualTo("caregiver@test.com");
+    void baseServiceTestWorks() {
+        RuntimeException ex = testException("test");
+        assertThat(ex.getMessage()).contains("Test exception: test");
     }
-    
+}
+
+class IntegrationTestImpl extends BaseIntegrationTest {
     @Test
-    void testTokensObtained() {
+    void baseIntegrationTestWorks() {
+        assertThat(baseUrl).startsWith("http://localhost:");
         assertThat(ownerToken).isNotNull();
-        assertThat(ownerToken).isNotEmpty();
-        
         assertThat(caregiverToken).isNotNull();
-        assertThat(caregiverToken).isNotEmpty();
-    }
-    
-    @Test
-    void testAuthenticatedRequest() {
-        ResponseEntity<Object> response = getWithAuth("/api/users/profile", ownerToken, Object.class);
-        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
     }
 }

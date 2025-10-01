@@ -16,8 +16,8 @@ spring:
       enabled: false
 app:
   jwt:
-    secret: dGVzdFNlY3JldEtleUZvclRlc3RpbmdQdXJwb3Nlc09ubHk=
-    expiration: 3600
+    secret: bXlTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25UaGF0SXNTZWN1cmVFbm91Z2hGb3JITUFDMjU2QWxnb3JpdGht
+    expiration: 86400
 logging:
   level:
     root: WARN
