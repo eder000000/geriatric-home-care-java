@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -78,56 +79,50 @@ public class AuthService {
     /**
      * Authenticate user and generate token
      */
-    public AuthResponse authenticateUser(LoginRequest loginRequest) {
-        logger.info("Attempting to authenticate user with email: {}", loginRequest.getEmail());
-        
-        try {
-            // Authenticate the user
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(),
-                    loginRequest.getPassword()
-                )
-            );
-            
-            // Get user details
-            User user = userRepository.findByEmailAndIsActiveTrue(loginRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-            
-            // Generate JWT token
-            String jwt = jwtUtil.generateTokenFromAuthentication(authentication);
-            LocalDateTime expiresAt = jwtUtil.getExpirationFromToken(jwt);
-            
-            logger.info("User authenticated successfully: {}", user.getEmail());
-            
-            return new AuthResponse(
-                jwt,
-                user.getId(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getRole(),
-                expiresAt
-            );
-            
-        } catch (AuthenticationException e) {
-            logger.error("Authentication failed for user: {}", loginRequest.getEmail());
-            throw new RuntimeException("Invalid email or password!");
-        }
-    }
-    
-    /**
-     * Validate JWT token and return user info
-     */
-    public User validateToken(String token) {
-        if (!jwtUtil.validateJwtToken(token)) {
-            throw new RuntimeException("Invalid or expired token");
-        }
-        
-        String email = jwtUtil.getUsernameFromToken(token);
-        return userRepository.findByEmailAndIsActiveTrue(email)
+  public AuthResponse authenticateUser(LoginRequest loginRequest) {
+    logger.info("Attempting to authenticate user with email: {}", loginRequest.getEmail());
+
+    try {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                loginRequest.getEmail(),
+                loginRequest.getPassword()
+            )
+        );
+
+        User user = userRepository.findByEmailAndIsActiveTrue(loginRequest.getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String jwt = jwtUtil.generateTokenFromAuthentication(authentication);
+        LocalDateTime expiresAt = jwtUtil.getExpirationFromToken(jwt);
+
+        logger.info("User authenticated successfully: {}", user.getEmail());
+
+        return new AuthResponse(
+            jwt,
+            user.getId(),
+            user.getEmail(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getRole(),
+            expiresAt
+        );
+
+    } catch (AuthenticationException e) {
+        logger.error("Authentication failed for user: {}", loginRequest.getEmail());
+        throw new BadCredentialsException("Invalid email or password!");
     }
+}
+
+public User validateToken(String token) {
+    if (!jwtUtil.validateJwtToken(token)) {
+        throw new BadCredentialsException("Invalid or expired token");
+    }
+
+    String email = jwtUtil.getUsernameFromToken(token);
+    return userRepository.findByEmailAndIsActiveTrue(email)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+}
     
     /**
      * Refresh JWT token

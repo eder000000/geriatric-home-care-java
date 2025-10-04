@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -160,20 +161,11 @@ class AuthServiceTest {
         assertThat(result.getEmail()).isEqualTo(email);
     }
     
-    @Test
-    @DisplayName("Should return null for invalid token")
-    void validateToken_Invalid() {
-        // Given
-        String token = "invalid-token";
-        when(jwtUtil.validateJwtToken(token)).thenReturn(false);
-        
-        // When
-        User result = authService.validateToken(token);
-        
-        // Then
-        assertThat(result).isNull();
-        verify(jwtUtil, never()).getUsernameFromToken(any());
-    }
+@Test
+void validateToken_Invalid() {
+    String invalidToken = "invalid.token.value";
+    assertThrows(BadCredentialsException.class, () -> authService.validateToken(invalidToken));
+}
     
     @Test
     @DisplayName("Should refresh token for existing user")
