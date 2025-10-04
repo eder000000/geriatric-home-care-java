@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -112,7 +113,7 @@ public class AuthService {
             
         } catch (AuthenticationException e) {
             logger.error("Authentication failed for user: {}", loginRequest.getEmail());
-            throw new RuntimeException("Invalid email or password!");
+            throw new BadCredentialsException("Invalid email or password!");
         }
     }
     
@@ -121,7 +122,7 @@ public class AuthService {
      */
     public User validateToken(String token) {
         if (!jwtUtil.validateJwtToken(token)) {
-            throw new RuntimeException("Invalid or expired token");
+            throw new BadCredentialsException("Invalid or expired token");
         }
         
         String email = jwtUtil.getUsernameFromToken(token);
