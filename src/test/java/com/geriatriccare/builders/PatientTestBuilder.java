@@ -59,5 +59,9 @@ public class PatientTestBuilder {
     public Patient buildAndSave(PatientRepository repository) {
         return repository.save(build());
     }
-    
+
+    public PatientTestBuilder withDateOfBirth(LocalDate of) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'withDateOfBirth'");
+    }
 }
