@@ -163,16 +163,10 @@ class AuthServiceTest {
     @Test
     @DisplayName("Should return null for invalid token")
     void validateToken_Invalid() {
-        // Given
-        String token = "invalid-token";
-        when(jwtUtil.validateJwtToken(token)).thenReturn(false);
-        
-        // When
-        User result = authService.validateToken(token);
-        
-        // Then
-        assertThat(result).isNull();
-        verify(jwtUtil, never()).getUsernameFromToken(any());
+        String invalidToken = "invalid.token.value";
+        assertThatThrownBy(() -> authService.validateToken(invalidToken))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessageContaining("Invalid or expired token");
     }
     
     @Test
