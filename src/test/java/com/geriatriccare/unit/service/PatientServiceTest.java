@@ -192,20 +192,32 @@ class PatientServiceTest {
     @Test
     @DisplayName("Should search patients by name")
     void searchPatientsByName() {
-        String searchName = "John";
-        List<Patient> patients = Arrays.asList(testPatient);
-        
-        when(patientRepository.findByNameContainingIgnoreCase(searchName))
-            .thenReturn(patients);
-        when(patientCaregiverRepository.findByPatientIdAndIsActiveTrue(any(UUID.class)))
-            .thenReturn(Collections.emptyList());
-        when(patientFamilyMemberRepository.findByPatientIdAndIsActiveTrue(any(UUID.class)))
-            .thenReturn(Collections.emptyList());
-        
-        List<PatientResponse> results = patientService.searchPatientsByName(searchName);
-        
-        assertThat(results).hasSize(1);
-    }
+    // Given
+    String searchName = "John";
+    Patient patient2 = PatientTestBuilder.aPatient()
+        .withName("Johnny", "Doe")
+        .build();
+    patient2.setId(UUID.randomUUID());
+    
+    List<Patient> patients = Arrays.asList(testPatient);
+    
+    // FIXED: Use the correct method name with BOTH parameters
+    when(patientRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseAndIsActiveTrue(
+        searchName, searchName))
+        .thenReturn(patients);
+    when(patientCaregiverRepository.findByPatientIdAndIsActiveTrue(any(UUID.class)))
+        .thenReturn(Collections.emptyList());
+    when(patientFamilyMemberRepository.findByPatientIdAndIsActiveTrue(any(UUID.class)))
+        .thenReturn(Collections.emptyList());
+    
+    // When
+    List<PatientResponse> results = patientService.searchPatientsByName(searchName);
+    
+    // Then
+    assertThat(results).hasSize(1);
+    verify(patientRepository).findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseAndIsActiveTrue(
+        searchName, searchName);
+}
     
     @Test
     @DisplayName("Should search patients by age range")

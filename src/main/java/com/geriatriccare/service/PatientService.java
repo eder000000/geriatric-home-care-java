@@ -137,14 +137,14 @@ public class PatientService {
      * Search patients by name
      */
     @Transactional(readOnly = true)
-    public List<PatientResponse> searchPatientsByName(String name) {
-        logger.debug("Searching patients by name: {}", name);
-        
-        return patientRepository.findByNameContainingIgnoreCase(name)
-                .stream()
-                .map(this::convertToResponse)
-                .collect(Collectors.toList());
-    }
+public List<PatientResponse> searchPatientsByName(String name) {
+    logger.debug("Searching patients by name: {}", name);
+    
+    return patientRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseAndIsActiveTrue(name, name)
+            .stream()
+            .map(this::convertToResponse)
+            .collect(Collectors.toList());
+}
     
     /**
      * Search patients by age range
