@@ -27,7 +27,7 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
     List<Patient> findByMedicalConditionsContainingIgnoreCaseAndIsActiveTrue(String condition);
     
     // Add these missing methods that PatientService calls:
-    List<Patient> findByNameContainingIgnoreCase(String name);
+    //List<Patient> findByNameContainingIgnoreCase(String name);
     
     List<Patient> findByAgeBetween(int minAge, int maxAge);
     
