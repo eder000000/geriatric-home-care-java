@@ -39,7 +39,7 @@ public class AuthController {
             AuthResponse authResponse = authService.registerUser(registerRequest);
             
             logger.info("User registered successfully: {}", registerRequest.getEmail());
-            return ResponseEntity.ok(authResponse);
+            return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
             
         } catch (RuntimeException e) {
             logger.error("Registration failed: {}", e.getMessage());
