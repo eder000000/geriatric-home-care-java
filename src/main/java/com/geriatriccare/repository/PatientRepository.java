@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,7 +30,8 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
     // Add these missing methods that PatientService calls:
     //List<Patient> findByNameContainingIgnoreCase(String name);
     
-    List<Patient> findByAgeBetween(int minAge, int maxAge);
+    @Query("SELECT p FROM Patient p WHERE YEAR(CURRENT_DATE) - YEAR(p.dateOfBirth) BETWEEN :minAge AND :maxAge AND p.isActive = true")
+    List<Patient> findByAgeBetween(@Param("minAge") int minAge, @Param("maxAge") int maxAge);
     
     List<Patient> findByMedicalConditionsContaining(String condition);
     
