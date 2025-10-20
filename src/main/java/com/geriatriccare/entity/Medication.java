@@ -36,7 +36,6 @@ public class Medication {
     private String manufacturer;
 
     @NotNull(message = "Expiration date is required")
-    @Future(message = "Expiration date must be in the future")
     @Column(nullable = false)
     private LocalDate expirationDate;
 
