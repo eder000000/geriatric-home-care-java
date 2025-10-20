@@ -20,6 +20,7 @@ public class MedicationRequest {
     private String manufacturer;
 
     @NotBlank
+    @Size(max = 100)
     private String dosage;
 
     @NotNull
