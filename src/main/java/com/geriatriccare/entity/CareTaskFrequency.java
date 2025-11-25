@@ -1,15 +1,18 @@
 package com.geriatriccare.entity;
 
+/**
+ * Frequency options for care tasks
+ */
 public enum CareTaskFrequency {
-    ONCE("One time only"),
+    ONCE("Once"),
     DAILY("Daily"),
-    TWICE_DAILY("Twice daily"),
-    THREE_TIMES_DAILY("Three times daily"),
+    TWICE_DAILY("Twice Daily"),
+    THREE_TIMES_DAILY("Three Times Daily"),
+    FOUR_TIMES_DAILY("Four Times Daily"),
     WEEKLY("Weekly"),
-    TWICE_WEEKLY("Twice weekly"),
+    BIWEEKLY("Biweekly"),
     MONTHLY("Monthly"),
-    AS_NEEDED("As needed"),
-    CUSTOM("Custom schedule");
+    AS_NEEDED("As Needed");
 
     private final String displayName;
 
@@ -19,18 +22,5 @@ public enum CareTaskFrequency {
 
     public String getDisplayName() {
         return displayName;
-    }
-
-    public boolean isRegularSchedule() {
-        return this != AS_NEEDED && this != CUSTOM && this != ONCE;
-    }
-
-    public int getDailyOccurrences() {
-        return switch (this) {
-            case DAILY -> 1;
-            case TWICE_DAILY -> 2;
-            case THREE_TIMES_DAILY -> 3;
-            default -> 0;
-        };
     }
 }

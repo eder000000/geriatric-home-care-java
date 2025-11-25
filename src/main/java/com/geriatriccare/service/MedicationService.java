@@ -160,6 +160,121 @@ public class MedicationService {
     }
 
     // ========================================
+    // INVENTORY MANAGEMENT - NEW METHODS
+    // ========================================
+
+    /**
+     * Add stock to a medication (e.g., receiving a shipment)
+     */
+    public MedicationResponse addStock(UUID medicationId, int quantity) {
+        // Validate quantity
+        if (quantity <= 0) {
+            throw new RuntimeException("Quantity to add must be positive");
+        }
+
+        // Find medication
+        Medication medication = medicationRepository.findByIdAndIsActiveTrue(medicationId)
+                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + medicationId));
+
+        // Add stock
+        int newQuantity = medication.getQuantityInStock() + quantity;
+        medication.setQuantityInStock(newQuantity);
+        medication.setUpdatedAt(LocalDateTime.now());
+
+        // Save and return
+        Medication updated = medicationRepository.save(medication);
+        return MedicationResponse.fromEntity(updated);
+    }
+
+    /**
+     * Remove stock from a medication (e.g., dispensing)
+     */
+    public MedicationResponse removeStock(UUID medicationId, int quantity) {
+        // Validate quantity
+        if (quantity <= 0) {
+            throw new RuntimeException("Quantity to remove must be positive");
+        }
+
+        // Find medication
+        Medication medication = medicationRepository.findByIdAndIsActiveTrue(medicationId)
+                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + medicationId));
+
+        // Check sufficient stock
+        if (medication.getQuantityInStock() < quantity) {
+            throw new RuntimeException(
+                String.format("Insufficient stock. Available: %d, Requested: %d",
+                    medication.getQuantityInStock(), quantity)
+            );
+        }
+
+        // Remove stock
+        int newQuantity = medication.getQuantityInStock() - quantity;
+        medication.setQuantityInStock(newQuantity);
+        medication.setUpdatedAt(LocalDateTime.now());
+
+        // Save and return
+        Medication updated = medicationRepository.save(medication);
+        return MedicationResponse.fromEntity(updated);
+    }
+
+    /**
+     * Calculate how much stock needs to be reordered
+     * Strategy: Reorder to reach 2x the reorder level (safety stock)
+     */
+    public int calculateReorderQuantity(UUID medicationId) {
+        // Find medication
+        Medication medication = medicationRepository.findByIdAndIsActiveTrue(medicationId)
+                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + medicationId));
+
+        int currentStock = medication.getQuantityInStock();
+        int reorderLevel = medication.getReorderLevel();
+
+        // If stock is adequate, no need to reorder
+        if (currentStock > reorderLevel) {
+            return 0;
+        }
+
+        // Calculate quantity to reach 2x reorder level (safety stock)
+        int targetStock = reorderLevel * 2;
+        return targetStock - currentStock;
+    }
+
+    // ========================================
+    // INVENTORY SUMMARY METHODS
+    // ========================================
+
+    /**
+     * Get total count of active medications
+     */
+    public int getTotalMedicationCount() {
+        return medicationRepository.findByIsActiveTrue().size();
+    }
+
+    /**
+     * Get total stock quantity across all medications
+     */
+    public int getTotalStockQuantity() {
+        return medicationRepository.findByIsActiveTrue()
+                .stream()
+                .mapToInt(Medication::getQuantityInStock)
+                .sum();
+    }
+
+    /**
+     * Count how many medications need reordering
+     */
+    public int countMedicationsNeedingReorder() {
+        return medicationRepository.findLowStockMedications().size();
+    }
+
+    /**
+     * Count expired medications
+     */
+    public int countExpiredMedications() {
+        return medicationRepository.findExpiredMedications().size();
+    }
+
+    // ========================================
     // PRIVATE HELPER METHODS
     // ========================================
 
