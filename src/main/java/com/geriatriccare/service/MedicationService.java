@@ -99,6 +99,10 @@ public class MedicationService {
     }
 
     public MedicationResponse adjustStock(UUID id, int quantityChange) {
+        if (quantityChange == 0) {
+            throw new RuntimeException("Quantity change cannot be zero");
+        }
+        
         Medication medication = medicationRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
         
@@ -127,7 +131,7 @@ public class MedicationService {
             return 0;
         }
         
-        int optimalStock = medication.getReorderLevel() * 3;
+        int optimalStock = medication.getReorderLevel() * 2;
         return optimalStock - medication.getQuantityInStock();
     }
 
@@ -159,7 +163,7 @@ public class MedicationService {
             throw new RuntimeException("Medication form is required");
         }
         if (request.getExpirationDate() != null && request.getExpirationDate().isBefore(LocalDate.now())) {
-            throw new RuntimeException("Expiration date cannot be in the past");
+            throw new RuntimeException("Expiration date must be in the future");
         }
         if (request.getQuantityInStock() != null && request.getQuantityInStock() < 0) {
             throw new RuntimeException("Quantity cannot be negative");
@@ -387,5 +391,40 @@ public class MedicationService {
         nameRequest.setMedicationNames(medicationNames);
         
         return checkDrugInteractions(nameRequest);
+    }
+
+    // Additional search and query methods
+    public List<MedicationResponse> findByManufacturer(String manufacturer) {
+        return medicationRepository.findByManufacturerIgnoreCaseAndIsActiveTrue(manufacturer)
+                .stream()
+                .map(this::mapEntityToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<MedicationResponse> findExpired() {
+        LocalDate today = LocalDate.now();
+        return medicationRepository.findExpiredMedications()
+                .stream()
+                .map(this::mapEntityToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public int countAllMedications() {
+        return medicationRepository.findByIsActiveTrue().size();
+    }
+
+    public int calculateTotalStock() {
+        return medicationRepository.findByIsActiveTrue()
+                .stream()
+                .mapToInt(Medication::getQuantityInStock)
+                .sum();
+    }
+
+    public int countNeedingReorder() {
+        return medicationRepository.findLowStockMedications().size();
+    }
+
+    public int countExpired() {
+        return medicationRepository.findExpiredMedications().size();
     }
 }

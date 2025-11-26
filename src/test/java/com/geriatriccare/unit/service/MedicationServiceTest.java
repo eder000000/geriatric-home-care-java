@@ -308,7 +308,7 @@ class MedicationServiceTest {
                     .thenReturn(Arrays.asList(tablet1, tablet2));
 
             // ACT
-            List<MedicationResponse> responses = medicationService.searchByForm(MedicationForm.TABLET);
+            List<MedicationResponse> responses = medicationService.findByForm(MedicationForm.TABLET);
 
             // ASSERT
             assertThat(responses).hasSize(2);
@@ -324,7 +324,7 @@ class MedicationServiceTest {
                     .thenReturn(Arrays.asList(med));
 
             // ACT
-            List<MedicationResponse> responses = medicationService.searchByManufacturer("pfizer");
+            List<MedicationResponse> responses = medicationService.findByManufacturer("pfizer");
 
             // ASSERT
             assertThat(responses).hasSize(1);
@@ -516,7 +516,7 @@ class MedicationServiceTest {
                     .thenReturn(Arrays.asList(lowStock1, lowStock2));
 
             // ACT
-            List<MedicationResponse> responses = medicationService.getLowStockMedications();
+            List<MedicationResponse> responses = medicationService.findLowStock();
 
             // ASSERT
             assertThat(responses).hasSize(2);
@@ -534,7 +534,7 @@ class MedicationServiceTest {
                     .thenReturn(Arrays.asList(expired1, expired2));
 
             // ACT
-            List<MedicationResponse> responses = medicationService.getExpiredMedications();
+            List<MedicationResponse> responses = medicationService.findExpired();
 
             // ASSERT
             assertThat(responses).hasSize(2);
@@ -553,7 +553,7 @@ class MedicationServiceTest {
                     .thenReturn(Arrays.asList(expiring1, expiring2));
 
             // ACT
-            List<MedicationResponse> responses = medicationService.getExpiringSoonMedications(30);
+            List<MedicationResponse> responses = medicationService.findExpiringSoon(30);
 
             // ASSERT
             assertThat(responses).hasSize(2);
@@ -570,7 +570,7 @@ class MedicationServiceTest {
                     .thenReturn(Arrays.asList());
 
             // ACT
-            List<MedicationResponse> responses = medicationService.getExpiringSoonMedications(null);
+            List<MedicationResponse> responses = medicationService.findExpiringSoon(30);
 
             // ASSERT
             verify(medicationRepository).findExpiringSoon(futureDate);

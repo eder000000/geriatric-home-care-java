@@ -69,7 +69,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(testMedication);
 
             // ACT
-            MedicationResponse response = medicationService.addStock(medicationId, quantityToAdd);
+            MedicationResponse response = medicationService.adjustStock(medicationId, quantityToAdd);
 
             // ASSERT
             ArgumentCaptor<Medication> captor = ArgumentCaptor.forClass(Medication.class);
@@ -86,7 +86,7 @@ class MedicationInventoryServiceTest {
             int negativeQuantity = -10;
 
             // ACT & ASSERT
-            assertThatThrownBy(() -> medicationService.addStock(medicationId, negativeQuantity))
+            assertThatThrownBy(() -> medicationService.adjustStock(medicationId, negativeQuantity))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Quantity to add must be positive");
 
@@ -101,7 +101,7 @@ class MedicationInventoryServiceTest {
             int zeroQuantity = 0;
 
             // ACT & ASSERT
-            assertThatThrownBy(() -> medicationService.addStock(medicationId, zeroQuantity))
+            assertThatThrownBy(() -> medicationService.adjustStock(medicationId, zeroQuantity))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Quantity to add must be positive");
 
@@ -117,7 +117,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Optional.empty());
 
             // ACT & ASSERT
-            assertThatThrownBy(() -> medicationService.addStock(medicationId, 50))
+            assertThatThrownBy(() -> medicationService.adjustStock(medicationId, 50))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Medication not found");
 
@@ -135,7 +135,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(testMedication);
 
             // ACT
-            medicationService.addStock(medicationId, 50);
+            medicationService.adjustStock(medicationId, 50);
 
             // ASSERT
             ArgumentCaptor<Medication> captor = ArgumentCaptor.forClass(Medication.class);
@@ -157,7 +157,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(testMedication);
 
             // ACT
-            medicationService.addStock(medicationId, largeQuantity);
+            medicationService.adjustStock(medicationId, largeQuantity);
 
             // ASSERT
             ArgumentCaptor<Medication> captor = ArgumentCaptor.forClass(Medication.class);
@@ -185,7 +185,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(testMedication);
 
             // ACT
-            MedicationResponse response = medicationService.removeStock(medicationId, quantityToRemove);
+            MedicationResponse response = medicationService.adjustStock(medicationId, -quantityToRemove);
 
             // ASSERT
             ArgumentCaptor<Medication> captor = ArgumentCaptor.forClass(Medication.class);
@@ -206,7 +206,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Optional.of(testMedication));
 
             // ACT & ASSERT
-            assertThatThrownBy(() -> medicationService.removeStock(medicationId, quantityToRemove))
+            assertThatThrownBy(() -> medicationService.adjustStock(medicationId, -quantityToRemove))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Insufficient stock");
 
@@ -227,7 +227,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(testMedication);
 
             // ACT
-            medicationService.removeStock(medicationId, quantityToRemove);
+            medicationService.adjustStock(medicationId, -quantityToRemove);
 
             // ASSERT
             ArgumentCaptor<Medication> captor = ArgumentCaptor.forClass(Medication.class);
@@ -244,7 +244,7 @@ class MedicationInventoryServiceTest {
             int negativeQuantity = -10;
 
             // ACT & ASSERT
-            assertThatThrownBy(() -> medicationService.removeStock(medicationId, negativeQuantity))
+            assertThatThrownBy(() -> medicationService.adjustStock(medicationId, -negativeQuantity))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Quantity to remove must be positive");
 
@@ -259,7 +259,7 @@ class MedicationInventoryServiceTest {
             int zeroQuantity = 0;
 
             // ACT & ASSERT
-            assertThatThrownBy(() -> medicationService.removeStock(medicationId, zeroQuantity))
+            assertThatThrownBy(() -> medicationService.adjustStock(medicationId, -zeroQuantity))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Quantity to remove must be positive");
 
@@ -275,7 +275,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Optional.empty());
 
             // ACT & ASSERT
-            assertThatThrownBy(() -> medicationService.removeStock(medicationId, 10))
+            assertThatThrownBy(() -> medicationService.adjustStock(medicationId, -10))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Medication not found");
 
@@ -379,7 +379,7 @@ class MedicationInventoryServiceTest {
                 .thenReturn(Arrays.asList(lowStock1, lowStock2));
 
         // ACT
-        List<MedicationResponse> lowStockMeds = medicationService.getLowStockMedications();
+        List<MedicationResponse> lowStockMeds = medicationService.findLowStock();
 
         // ASSERT - should get both low stock medications
         assertThat(lowStockMeds)
@@ -402,7 +402,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Arrays.asList(expired1, expired2));
 
             // ACT
-            List<MedicationResponse> expiredMeds = medicationService.getExpiredMedications();
+            List<MedicationResponse> expiredMeds = medicationService.findExpired();
 
             // ASSERT
             assertThat(expiredMeds)
@@ -431,7 +431,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Arrays.asList(expiring1, expiring2));
 
             // ACT
-            List<MedicationResponse> expiringMeds = medicationService.getExpiringSoonMedications(customDays);
+            List<MedicationResponse> expiringMeds = medicationService.findExpiringSoon(customDays);
 
             // ASSERT
             assertThat(expiringMeds).hasSize(2);
@@ -459,7 +459,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Arrays.asList(med1, med2, med3));
 
             // ACT
-            int totalCount = medicationService.getTotalMedicationCount();
+            int totalCount = medicationService.countAllMedications();
 
             // ASSERT
             assertThat(totalCount).isEqualTo(3);
@@ -477,7 +477,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Arrays.asList(med1, med2, med3));
 
             // ACT
-            int totalQuantity = medicationService.getTotalStockQuantity();
+            int totalQuantity = medicationService.calculateTotalStock();
 
             // ASSERT
             assertThat(totalQuantity).isEqualTo(225);
@@ -494,7 +494,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Arrays.asList(lowStock1, lowStock2));
 
             // ACT
-            int reorderCount = medicationService.countMedicationsNeedingReorder();
+            int reorderCount = medicationService.countNeedingReorder();
 
             // ASSERT
             assertThat(reorderCount).isEqualTo(2);
@@ -512,7 +512,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Arrays.asList(expired1, expired2, expired3));
 
             // ACT
-            int expiredCount = medicationService.countExpiredMedications();
+            int expiredCount = medicationService.countExpired();
 
             // ASSERT
             assertThat(expiredCount).isEqualTo(3);
@@ -526,7 +526,7 @@ class MedicationInventoryServiceTest {
                     .thenReturn(Arrays.asList());
 
             // ACT
-            int totalCount = medicationService.getTotalMedicationCount();
+            int totalCount = medicationService.countAllMedications();
 
             // ASSERT
             assertThat(totalCount).isEqualTo(0);
