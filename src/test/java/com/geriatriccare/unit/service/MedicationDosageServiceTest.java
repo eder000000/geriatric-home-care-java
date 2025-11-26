@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import static com.geriatriccare.builders.MedicationTestBuilder.aMedication;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,165 +48,299 @@ class MedicationDosageServiceTest {
         testMedication.setId(medicationId);
     }
 
-    @Test
-    @DisplayName("Should calculate weight-based dosage")
-    void calculateWeightBasedDosage_Success() {
-        when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
-                .thenReturn(Optional.of(testMedication));
+    @Nested
+    @DisplayName("Weight-Based Dosage Tests")
+    class WeightBasedDosageTests {
 
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setMedicationId(medicationId);
-        request.setPatientWeight(70.0);
-        request.setDosagePerKg(1.0);
+        @ParameterizedTest(name = "weight={0}kg, dosagePerKg={1}, expected={2}mg")
+        @CsvSource({
+            "50, 1.0, 50",
+            "70, 1.0, 70",
+            "100, 1.0, 100",
+            "30, 2.0, 60",
+            "80, 0.5, 40"
+        })
+        @DisplayName("Should calculate dosage based on weight")
+        void calculateWeightBasedDosage_VariousWeights(double weight, double dosagePerKg, double expected) {
+            when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
+                    .thenReturn(Optional.of(testMedication));
 
-        DosageCalculationResponse response = medicationService.calculateWeightBasedDosage(request);
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setPatientWeight(weight);
+            request.setDosagePerKg(dosagePerKg);
 
-        assertThat(response.getCalculatedDosage()).isEqualTo(70.0);
+            DosageCalculationResponse response = medicationService.calculateWeightBasedDosage(request);
+
+            assertThat(response.getCalculatedDosage()).isEqualTo(expected);
+        }
+
+        @Test
+        @DisplayName("Should throw exception for negative weight")
+        void calculateWeightBasedDosage_NegativeWeight_ThrowsException() {
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setPatientWeight(-10.0);
+            request.setDosagePerKg(1.0);
+
+            assertThatThrownBy(() -> medicationService.calculateWeightBasedDosage(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Weight must be positive");
+        }
+
+        @Test
+        @DisplayName("Should throw exception for zero weight")
+        void calculateWeightBasedDosage_ZeroWeight_ThrowsException() {
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setPatientWeight(0.0);
+            request.setDosagePerKg(1.0);
+
+            assertThatThrownBy(() -> medicationService.calculateWeightBasedDosage(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Weight must be positive");
+        }
     }
 
-    @Test
-    @DisplayName("Should calculate age-based dosage for pediatric")
-    void calculateAgeBasedDosage_Pediatric() {
-        when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
-                .thenReturn(Optional.of(testMedication));
+    @Nested
+    @DisplayName("Age-Based Dosage Tests")
+    class AgeBasedDosageTests {
 
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setMedicationId(medicationId);
-        request.setPatientAge(10);
-        request.setBaseDosage(100.0);
+        @ParameterizedTest(name = "age={0}, baseDosage={1}, expected={2}")
+        @CsvSource({
+            "5, 100, 50",      // Pediatric
+            "17, 100, 50",     // Pediatric boundary
+            "18, 100, 100",    // Adult
+            "30, 100, 100",    // Adult
+            "64, 100, 100",    // Adult boundary
+            "65, 100, 75",     // Geriatric
+            "80, 100, 75"      // Geriatric
+        })
+        @DisplayName("Should adjust dosage based on age")
+        void calculateAgeBasedDosage_VariousAges(int age, double baseDosage, double expected) {
+            when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
+                    .thenReturn(Optional.of(testMedication));
 
-        DosageCalculationResponse response = medicationService.calculateAgeBasedDosage(request);
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setPatientAge(age);
+            request.setBaseDosage(baseDosage);
 
-        assertThat(response.getCalculatedDosage()).isEqualTo(50.0);
-        assertThat(response.getAgeGroup()).isEqualTo("PEDIATRIC");
+            DosageCalculationResponse response = medicationService.calculateAgeBasedDosage(request);
+
+            assertThat(response.getCalculatedDosage()).isEqualTo(expected);
+        }
+
+        @Test
+        @DisplayName("Should set correct age group for pediatric")
+        void calculateAgeBasedDosage_Pediatric_SetsAgeGroup() {
+            when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
+                    .thenReturn(Optional.of(testMedication));
+
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setPatientAge(10);
+            request.setBaseDosage(100.0);
+
+            DosageCalculationResponse response = medicationService.calculateAgeBasedDosage(request);
+
+            assertThat(response.getAgeGroup()).isEqualTo("PEDIATRIC");
+        }
+
+        @Test
+        @DisplayName("Should throw exception for negative age")
+        void calculateAgeBasedDosage_NegativeAge_ThrowsException() {
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setPatientAge(-5);
+            request.setBaseDosage(100.0);
+
+            assertThatThrownBy(() -> medicationService.calculateAgeBasedDosage(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Age must be positive");
+        }
     }
 
-    @Test
-    @DisplayName("Should calculate age-based dosage for adult")
-    void calculateAgeBasedDosage_Adult() {
-        when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
-                .thenReturn(Optional.of(testMedication));
+    @Nested
+    @DisplayName("Maximum Daily Dose Tests")
+    class MaximumDailyDoseTests {
 
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setMedicationId(medicationId);
-        request.setPatientAge(30);
-        request.setBaseDosage(100.0);
+        @Test
+        @DisplayName("Should validate dosage within limit")
+        void validateMaximumDailyDose_WithinLimit_ReturnsTrue() {
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setCalculatedDosage(100.0);
+            request.setMaxDailyDose(400.0);
+            request.setFrequency(3);
 
-        DosageCalculationResponse response = medicationService.calculateAgeBasedDosage(request);
+            boolean isValid = medicationService.validateMaximumDailyDose(request);
 
-        assertThat(response.getCalculatedDosage()).isEqualTo(100.0);
-        assertThat(response.getAgeGroup()).isEqualTo("ADULT");
+            assertThat(isValid).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should reject dosage exceeding limit")
+        void validateMaximumDailyDose_ExceedsLimit_ReturnsFalse() {
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setCalculatedDosage(150.0);
+            request.setMaxDailyDose(400.0);
+            request.setFrequency(3);
+
+            boolean isValid = medicationService.validateMaximumDailyDose(request);
+
+            assertThat(isValid).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should calculate total daily dose")
+        void calculateTotalDailyDose_Success() {
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setCalculatedDosage(100.0);
+            request.setFrequency(4);
+
+            double total = medicationService.calculateTotalDailyDose(request);
+
+            assertThat(total).isEqualTo(400.0);
+        }
     }
 
-    @Test
-    @DisplayName("Should calculate age-based dosage for geriatric")
-    void calculateAgeBasedDosage_Geriatric() {
-        when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
-                .thenReturn(Optional.of(testMedication));
+    @Nested
+    @DisplayName("Renal Function Adjustment Tests")
+    class RenalFunctionAdjustmentTests {
 
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setMedicationId(medicationId);
-        request.setPatientAge(70);
-        request.setBaseDosage(100.0);
+        @ParameterizedTest(name = "GFR={0}, baseDosage={1}, expected={2}")
+        @CsvSource({
+            "90, 100, 100",   // Normal
+            "60, 100, 100",   // Mild
+            "45, 100, 75",    // Moderate
+            "25, 100, 50",    // Severe
+            "10, 100, 25"     // End-stage
+        })
+        @DisplayName("Should adjust dosage based on GFR")
+        void adjustDosageForRenalFunction_VariousGFR(double gfr, double baseDosage, double expected) {
+            when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
+                    .thenReturn(Optional.of(testMedication));
 
-        DosageCalculationResponse response = medicationService.calculateAgeBasedDosage(request);
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setBaseDosage(baseDosage);
+            request.setGlomerularFiltrationRate(gfr);
 
-        assertThat(response.getCalculatedDosage()).isEqualTo(75.0);
-        assertThat(response.getAgeGroup()).isEqualTo("GERIATRIC");
+            DosageCalculationResponse response = medicationService.adjustDosageForRenalFunction(request);
+
+            assertThat(response.getCalculatedDosage()).isEqualTo(expected);
+            assertThat(response.getRenalAdjustmentApplied()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should throw exception for negative GFR")
+        void adjustDosageForRenalFunction_NegativeGFR_ThrowsException() {
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setBaseDosage(100.0);
+            request.setGlomerularFiltrationRate(-10.0);
+
+            assertThatThrownBy(() -> medicationService.adjustDosageForRenalFunction(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("GFR must be positive");
+        }
     }
 
-    @Test
-    @DisplayName("Should validate max daily dose within limit")
-    void validateMaximumDailyDose_WithinLimit() {
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setCalculatedDosage(100.0);
-        request.setMaxDailyDose(400.0);
-        request.setFrequency(3);
+    @Nested
+    @DisplayName("Hepatic Function Adjustment Tests")
+    class HepaticFunctionAdjustmentTests {
 
-        boolean isValid = medicationService.validateMaximumDailyDose(request);
+        @ParameterizedTest(name = "Child-Pugh={0}, baseDosage={1}, expected={2}")
+        @CsvSource({
+            "A, 100, 100",
+            "B, 100, 75",
+            "C, 100, 50"
+        })
+        @DisplayName("Should adjust dosage based on Child-Pugh score")
+        void adjustDosageForHepaticFunction_VariousScores(String score, double baseDosage, double expected) {
+            when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
+                    .thenReturn(Optional.of(testMedication));
 
-        assertThat(isValid).isTrue();
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setBaseDosage(baseDosage);
+            request.setChildPughScore(score);
+
+            DosageCalculationResponse response = medicationService.adjustDosageForHepaticFunction(request);
+
+            assertThat(response.getCalculatedDosage()).isEqualTo(expected);
+            assertThat(response.getHepaticAdjustmentApplied()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should throw exception for invalid score")
+        void adjustDosageForHepaticFunction_InvalidScore_ThrowsException() {
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setBaseDosage(100.0);
+            request.setChildPughScore("X");
+
+            assertThatThrownBy(() -> medicationService.adjustDosageForHepaticFunction(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Invalid Child-Pugh score");
+        }
     }
 
-    @Test
-    @DisplayName("Should reject dosage exceeding max daily limit")
-    void validateMaximumDailyDose_ExceedsLimit() {
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setCalculatedDosage(150.0);
-        request.setMaxDailyDose(400.0);
-        request.setFrequency(3);
+    @Nested
+    @DisplayName("Complex Dosage Calculation Tests")
+    class ComplexDosageCalculationTests {
 
-        boolean isValid = medicationService.validateMaximumDailyDose(request);
+        @Test
+        @DisplayName("Should combine age and weight adjustments")
+        void calculateComplexDosage_AgeAndWeight() {
+            when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
+                    .thenReturn(Optional.of(testMedication));
 
-        assertThat(isValid).isFalse();
-    }
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setPatientAge(10);
+            request.setPatientWeight(30.0);
+            request.setDosagePerKg(2.0);
 
-    @Test
-    @DisplayName("Should adjust for normal renal function")
-    void adjustDosageForRenalFunction_Normal() {
-        when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
-                .thenReturn(Optional.of(testMedication));
+            DosageCalculationResponse response = medicationService.calculateComplexDosage(request);
 
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setMedicationId(medicationId);
-        request.setBaseDosage(100.0);
-        request.setGlomerularFiltrationRate(90.0);
+            assertThat(response.getCalculatedDosage()).isEqualTo(30.0); // 60 * 0.5
+        }
 
-        DosageCalculationResponse response = medicationService.adjustDosageForRenalFunction(request);
+        @Test
+        @DisplayName("Should combine all adjustment factors")
+        void calculateComplexDosage_AllFactors() {
+            when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
+                    .thenReturn(Optional.of(testMedication));
 
-        assertThat(response.getCalculatedDosage()).isEqualTo(100.0);
-    }
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setPatientAge(70);
+            request.setPatientWeight(60.0);
+            request.setDosagePerKg(1.0);
+            request.setGlomerularFiltrationRate(25.0);
 
-    @Test
-    @DisplayName("Should adjust for severe renal impairment")
-    void adjustDosageForRenalFunction_Severe() {
-        when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
-                .thenReturn(Optional.of(testMedication));
+            DosageCalculationResponse response = medicationService.calculateComplexDosage(request);
 
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setMedicationId(medicationId);
-        request.setBaseDosage(100.0);
-        request.setGlomerularFiltrationRate(25.0);
+            assertThat(response.getCalculatedDosage()).isEqualTo(22.5); // 60 * 0.75 * 0.5
+            assertThat(response.getWarnings()).isNotEmpty();
+        }
 
-        DosageCalculationResponse response = medicationService.adjustDosageForRenalFunction(request);
+        @Test
+        @DisplayName("Should include warnings for geriatric patients")
+        void calculateComplexDosage_Geriatric_IncludesWarnings() {
+            when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
+                    .thenReturn(Optional.of(testMedication));
 
-        assertThat(response.getCalculatedDosage()).isEqualTo(50.0);
-        assertThat(response.getRenalAdjustmentApplied()).isTrue();
-    }
+            DosageCalculationRequest request = new DosageCalculationRequest();
+            request.setMedicationId(medicationId);
+            request.setPatientAge(75);
+            request.setPatientWeight(70.0);
+            request.setDosagePerKg(1.0);
 
-    @Test
-    @DisplayName("Should adjust for hepatic impairment Grade B")
-    void adjustDosageForHepaticFunction_GradeB() {
-        when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
-                .thenReturn(Optional.of(testMedication));
+            DosageCalculationResponse response = medicationService.calculateComplexDosage(request);
 
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setMedicationId(medicationId);
-        request.setBaseDosage(100.0);
-        request.setChildPughScore("B");
-
-        DosageCalculationResponse response = medicationService.adjustDosageForHepaticFunction(request);
-
-        assertThat(response.getCalculatedDosage()).isEqualTo(75.0);
-        assertThat(response.getHepaticAdjustmentApplied()).isTrue();
-    }
-
-    @Test
-    @DisplayName("Should calculate complex dosage with multiple factors")
-    void calculateComplexDosage_MultipleFactors() {
-        when(medicationRepository.findByIdAndIsActiveTrue(medicationId))
-                .thenReturn(Optional.of(testMedication));
-
-        DosageCalculationRequest request = new DosageCalculationRequest();
-        request.setMedicationId(medicationId);
-        request.setPatientAge(70);
-        request.setPatientWeight(60.0);
-        request.setDosagePerKg(1.0);
-        request.setGlomerularFiltrationRate(25.0);
-
-        DosageCalculationResponse response = medicationService.calculateComplexDosage(request);
-
-        assertThat(response.getCalculatedDosage()).isEqualTo(22.5);
-        assertThat(response.getWarnings()).isNotEmpty();
+            assertThat(response.getWarnings()).contains("Geriatric patient - monitor closely");
+        }
     }
 }

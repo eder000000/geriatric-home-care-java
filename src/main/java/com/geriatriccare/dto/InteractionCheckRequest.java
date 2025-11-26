@@ -9,6 +9,7 @@ public class InteractionCheckRequest {
 
     public List<UUID> getMedicationIds() { return medicationIds; }
     public void setMedicationIds(List<UUID> medicationIds) { this.medicationIds = medicationIds; }
+
     public List<String> getMedicationNames() { return medicationNames; }
     public void setMedicationNames(List<String> medicationNames) { this.medicationNames = medicationNames; }
 }

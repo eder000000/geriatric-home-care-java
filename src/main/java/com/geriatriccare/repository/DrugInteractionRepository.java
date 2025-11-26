@@ -14,11 +14,14 @@ import java.util.UUID;
 @Repository
 public interface DrugInteractionRepository extends JpaRepository<DrugInteraction, UUID> {
     
-    @Query("SELECT di FROM DrugInteraction di WHERE (di.medication1Name = :med1 AND di.medication2Name = :med2) OR (di.medication1Name = :med2 AND di.medication2Name = :med1)")
+    @Query("SELECT di FROM DrugInteraction di WHERE " +
+           "(di.medication1Name = :med1 AND di.medication2Name = :med2) OR " +
+           "(di.medication1Name = :med2 AND di.medication2Name = :med1)")
     Optional<DrugInteraction> findInteraction(@Param("med1") String med1, @Param("med2") String med2);
     
     List<DrugInteraction> findBySeverity(InteractionSeverity severity);
     
-    @Query("SELECT di FROM DrugInteraction di WHERE di.medication1Name = :medName OR di.medication2Name = :medName")
+    @Query("SELECT di FROM DrugInteraction di WHERE " +
+           "di.medication1Name = :medName OR di.medication2Name = :medName")
     List<DrugInteraction> findByMedicationName(@Param("medName") String medName);
 }

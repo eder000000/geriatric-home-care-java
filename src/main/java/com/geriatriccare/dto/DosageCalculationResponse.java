@@ -20,15 +20,27 @@ public class DosageCalculationResponse {
 
     public Double getCalculatedDosage() { return calculatedDosage; }
     public void setCalculatedDosage(Double calculatedDosage) { this.calculatedDosage = calculatedDosage; }
+
     public String getUnit() { return unit; }
     public void setUnit(String unit) { this.unit = unit; }
+
     public String getAgeGroup() { return ageGroup; }
     public void setAgeGroup(String ageGroup) { this.ageGroup = ageGroup; }
+
     public Boolean getRenalAdjustmentApplied() { return renalAdjustmentApplied; }
-    public void setRenalAdjustmentApplied(Boolean renalAdjustmentApplied) { this.renalAdjustmentApplied = renalAdjustmentApplied; }
+    public void setRenalAdjustmentApplied(Boolean renalAdjustmentApplied) { 
+        this.renalAdjustmentApplied = renalAdjustmentApplied; 
+    }
+
     public Boolean getHepaticAdjustmentApplied() { return hepaticAdjustmentApplied; }
-    public void setHepaticAdjustmentApplied(Boolean hepaticAdjustmentApplied) { this.hepaticAdjustmentApplied = hepaticAdjustmentApplied; }
+    public void setHepaticAdjustmentApplied(Boolean hepaticAdjustmentApplied) { 
+        this.hepaticAdjustmentApplied = hepaticAdjustmentApplied; 
+    }
+
     public List<String> getWarnings() { return warnings; }
     public void setWarnings(List<String> warnings) { this.warnings = warnings; }
-    public void addWarning(String warning) { this.warnings.add(warning); }
+    
+    public void addWarning(String warning) {
+        this.warnings.add(warning);
+    }
 }

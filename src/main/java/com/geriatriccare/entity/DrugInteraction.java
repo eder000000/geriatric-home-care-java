@@ -44,18 +44,25 @@ public class DrugInteraction {
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
+
     public String getMedication1Name() { return medication1Name; }
     public void setMedication1Name(String medication1Name) { this.medication1Name = medication1Name; }
+
     public String getMedication2Name() { return medication2Name; }
     public void setMedication2Name(String medication2Name) { this.medication2Name = medication2Name; }
+
     public InteractionSeverity getSeverity() { return severity; }
     public void setSeverity(InteractionSeverity severity) { this.severity = severity; }
+
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
     public String getRecommendation() { return recommendation; }
     public void setRecommendation(String recommendation) { this.recommendation = recommendation; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

@@ -10,6 +10,7 @@ import com.geriatriccare.repository.MedicationRepository;
 import com.geriatriccare.service.MedicationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -67,160 +68,180 @@ class DrugInteractionServiceTest {
         severeInteraction.setRecommendation("Avoid combination");
     }
 
-    @Test
-    @DisplayName("Should detect interaction between two medications")
-    void checkInteraction_TwoMeds_DetectsInteraction() {
-        when(drugInteractionRepository.findInteraction("Aspirin", "Ibuprofen"))
-                .thenReturn(Optional.of(minorInteraction));
+    @Nested
+    @DisplayName("Basic Interaction Detection")
+    class BasicInteractionTests {
 
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(Arrays.asList("Aspirin", "Ibuprofen"));
+        @Test
+        @DisplayName("Should detect interaction between two medications")
+        void checkInteraction_TwoMeds_DetectsInteraction() {
+            when(drugInteractionRepository.findInteraction("Aspirin", "Ibuprofen"))
+                    .thenReturn(Optional.of(minorInteraction));
 
-        InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(Arrays.asList("Aspirin", "Ibuprofen"));
 
-        assertThat(response.isHasInteractions()).isTrue();
-        assertThat(response.getInteractionCount()).isEqualTo(1);
+            InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+
+            assertThat(response.isHasInteractions()).isTrue();
+            assertThat(response.getInteractionCount()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("Should return no interactions when safe")
+        void checkInteraction_SafeCombination_NoInteractions() {
+            when(drugInteractionRepository.findInteraction(any(), any()))
+                    .thenReturn(Optional.empty());
+
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(Arrays.asList("Med A", "Med B"));
+
+            InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+
+            assertThat(response.isHasInteractions()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should handle empty list")
+        void checkInteraction_EmptyList_NoInteractions() {
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(Collections.emptyList());
+
+            InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+
+            assertThat(response.isHasInteractions()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should handle single medication")
+        void checkInteraction_SingleMed_NoInteractions() {
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(Arrays.asList("Aspirin"));
+
+            InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+
+            assertThat(response.isHasInteractions()).isFalse();
+        }
     }
 
-    @Test
-    @DisplayName("Should return no interactions when safe")
-    void checkInteraction_SafeCombination_NoInteractions() {
-        when(drugInteractionRepository.findInteraction(any(), any()))
-                .thenReturn(Optional.empty());
+    @Nested
+    @DisplayName("Severity Classification")
+    class SeverityTests {
 
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(Arrays.asList("Med A", "Med B"));
+        @Test
+        @DisplayName("Should classify minor interaction")
+        void classifyInteraction_Minor() {
+            when(drugInteractionRepository.findInteraction("Aspirin", "Ibuprofen"))
+                    .thenReturn(Optional.of(minorInteraction));
 
-        InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(Arrays.asList("Aspirin", "Ibuprofen"));
 
-        assertThat(response.isHasInteractions()).isFalse();
+            InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+
+            assertThat(response.getInteractions().get(0).getSeverity())
+                    .isEqualTo(InteractionSeverity.MINOR);
+        }
+
+        @Test
+        @DisplayName("Should classify moderate interaction")
+        void classifyInteraction_Moderate() {
+            when(drugInteractionRepository.findInteraction("Warfarin", "Aspirin"))
+                    .thenReturn(Optional.of(moderateInteraction));
+
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(Arrays.asList("Warfarin", "Aspirin"));
+
+            InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+
+            assertThat(response.getInteractions().get(0).getSeverity())
+                    .isEqualTo(InteractionSeverity.MODERATE);
+        }
+
+        @Test
+        @DisplayName("Should classify severe interaction")
+        void classifyInteraction_Severe() {
+            when(drugInteractionRepository.findInteraction("MAO Inhibitor", "SSRI"))
+                    .thenReturn(Optional.of(severeInteraction));
+
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(Arrays.asList("MAO Inhibitor", "SSRI"));
+
+            InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+
+            assertThat(response.getInteractions().get(0).getSeverity())
+                    .isEqualTo(InteractionSeverity.SEVERE);
+        }
     }
 
-    @Test
-    @DisplayName("Should handle empty medication list")
-    void checkInteraction_EmptyList_NoInteractions() {
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(Collections.emptyList());
+    @Nested
+    @DisplayName("Patient Medication Review")
+    class PatientReviewTests {
 
-        InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+        @Test
+        @DisplayName("Should check interactions by medication IDs")
+        void reviewPatientMedications_ByIds_Success() {
+            UUID id1 = UUID.randomUUID();
+            UUID id2 = UUID.randomUUID();
+            Medication med1 = aMedication().withName("Aspirin").build();
+            med1.setId(id1);
+            Medication med2 = aMedication().withName("Warfarin").build();
+            med2.setId(id2);
 
-        assertThat(response.isHasInteractions()).isFalse();
+            when(medicationRepository.findByIdAndIsActiveTrue(id1))
+                    .thenReturn(Optional.of(med1));
+            when(medicationRepository.findByIdAndIsActiveTrue(id2))
+                    .thenReturn(Optional.of(med2));
+            when(drugInteractionRepository.findInteraction("Aspirin", "Warfarin"))
+                    .thenReturn(Optional.of(moderateInteraction));
+
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationIds(Arrays.asList(id1, id2));
+
+            InteractionCheckResponse response = medicationService.checkDrugInteractionsByIds(request);
+
+            assertThat(response.isHasInteractions()).isTrue();
+        }
     }
 
-    @Test
-    @DisplayName("Should handle single medication")
-    void checkInteraction_SingleMed_NoInteractions() {
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(Arrays.asList("Aspirin"));
+    @Nested
+    @DisplayName("Edge Cases")
+    class EdgeCaseTests {
 
-        InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+        @Test
+        @DisplayName("Should throw exception for null names")
+        void checkInteraction_NullNames_ThrowsException() {
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(null);
 
-        assertThat(response.isHasInteractions()).isFalse();
-    }
+            assertThatThrownBy(() -> medicationService.checkDrugInteractions(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("cannot be null");
+        }
 
-    @Test
-    @DisplayName("Should classify minor interaction correctly")
-    void classifyInteraction_Minor() {
-        when(drugInteractionRepository.findInteraction("Aspirin", "Ibuprofen"))
-                .thenReturn(Optional.of(minorInteraction));
+        @Test
+        @DisplayName("Should handle bidirectional lookup")
+        void checkInteraction_Bidirectional_Success() {
+            when(drugInteractionRepository.findInteraction("Ibuprofen", "Aspirin"))
+                    .thenReturn(Optional.of(minorInteraction));
 
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(Arrays.asList("Aspirin", "Ibuprofen"));
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(Arrays.asList("Ibuprofen", "Aspirin"));
 
-        InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
+            InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
 
-        assertThat(response.getInteractions().get(0).getSeverity())
-                .isEqualTo(InteractionSeverity.MINOR);
-    }
+            assertThat(response.isHasInteractions()).isTrue();
+        }
 
-    @Test
-    @DisplayName("Should classify moderate interaction correctly")
-    void classifyInteraction_Moderate() {
-        when(drugInteractionRepository.findInteraction("Warfarin", "Aspirin"))
-                .thenReturn(Optional.of(moderateInteraction));
+        @Test
+        @DisplayName("Should skip same medication")
+        void checkInteraction_SameMed_SkipsCheck() {
+            InteractionCheckRequest request = new InteractionCheckRequest();
+            request.setMedicationNames(Arrays.asList("Aspirin", "Aspirin"));
 
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(Arrays.asList("Warfarin", "Aspirin"));
+            medicationService.checkDrugInteractions(request);
 
-        InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
-
-        assertThat(response.getInteractions().get(0).getSeverity())
-                .isEqualTo(InteractionSeverity.MODERATE);
-    }
-
-    @Test
-    @DisplayName("Should classify severe interaction correctly")
-    void classifyInteraction_Severe() {
-        when(drugInteractionRepository.findInteraction("MAO Inhibitor", "SSRI"))
-                .thenReturn(Optional.of(severeInteraction));
-
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(Arrays.asList("MAO Inhibitor", "SSRI"));
-
-        InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
-
-        assertThat(response.getInteractions().get(0).getSeverity())
-                .isEqualTo(InteractionSeverity.SEVERE);
-    }
-
-    @Test
-    @DisplayName("Should check interactions by medication IDs")
-    void reviewPatientMedications_ByIds_Success() {
-        UUID id1 = UUID.randomUUID();
-        UUID id2 = UUID.randomUUID();
-        Medication med1 = aMedication().withName("Aspirin").build();
-        med1.setId(id1);
-        Medication med2 = aMedication().withName("Warfarin").build();
-        med2.setId(id2);
-
-        when(medicationRepository.findByIdAndIsActiveTrue(id1))
-                .thenReturn(Optional.of(med1));
-        when(medicationRepository.findByIdAndIsActiveTrue(id2))
-                .thenReturn(Optional.of(med2));
-        when(drugInteractionRepository.findInteraction("Aspirin", "Warfarin"))
-                .thenReturn(Optional.of(moderateInteraction));
-
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationIds(Arrays.asList(id1, id2));
-
-        InteractionCheckResponse response = medicationService.checkDrugInteractionsByIds(request);
-
-        assertThat(response.isHasInteractions()).isTrue();
-    }
-
-    @Test
-    @DisplayName("Should throw exception for null medication names")
-    void checkInteraction_NullNames_ThrowsException() {
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(null);
-
-        assertThatThrownBy(() -> medicationService.checkDrugInteractions(request))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("cannot be null");
-    }
-
-    @Test
-    @DisplayName("Should handle bidirectional interaction lookup")
-    void checkInteraction_Bidirectional_Success() {
-        when(drugInteractionRepository.findInteraction("Ibuprofen", "Aspirin"))
-                .thenReturn(Optional.of(minorInteraction));
-
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(Arrays.asList("Ibuprofen", "Aspirin"));
-
-        InteractionCheckResponse response = medicationService.checkDrugInteractions(request);
-
-        assertThat(response.isHasInteractions()).isTrue();
-    }
-
-    @Test
-    @DisplayName("Should skip checking medication against itself")
-    void checkInteraction_SameMed_SkipsCheck() {
-        InteractionCheckRequest request = new InteractionCheckRequest();
-        request.setMedicationNames(Arrays.asList("Aspirin", "Aspirin"));
-
-        medicationService.checkDrugInteractions(request);
-
-        verify(drugInteractionRepository, never()).findInteraction("Aspirin", "Aspirin");
+            verify(drugInteractionRepository, never()).findInteraction("Aspirin", "Aspirin");
+        }
     }
 }
