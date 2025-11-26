@@ -36,4 +36,5 @@ public interface MedicationRepository extends JpaRepository<Medication, UUID> {
 
     @Query("SELECT m FROM Medication m WHERE m.isActive = true AND m.expirationDate BETWEEN CURRENT_DATE AND :futureDate")
     List<Medication> findExpiringSoon(@Param("futureDate") LocalDate futureDate);
+    List<Medication> findByExpirationDateBeforeAndIsActiveTrue(LocalDate date);
 }

@@ -124,4 +124,6 @@ public class MedicationResponse {
 
     public String getUpdatedByName() { return updatedByName; }
     public void setUpdatedByName(String updatedByName) { this.updatedByName = updatedByName; }
+
+    public void setActive(boolean active) { this.isActive = active; }
 }

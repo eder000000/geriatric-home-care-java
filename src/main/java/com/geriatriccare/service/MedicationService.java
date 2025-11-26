@@ -1,301 +1,169 @@
 package com.geriatriccare.service;
 
+import com.geriatriccare.dto.DosageCalculationRequest;
+import com.geriatriccare.dto.DosageCalculationResponse;
+import com.geriatriccare.dto.InteractionCheckRequest;
+import com.geriatriccare.dto.InteractionCheckResponse;
 import com.geriatriccare.dto.MedicationRequest;
 import com.geriatriccare.dto.MedicationResponse;
+import com.geriatriccare.entity.DrugInteraction;
 import com.geriatriccare.entity.Medication;
 import com.geriatriccare.entity.MedicationForm;
+import com.geriatriccare.repository.DrugInteractionRepository;
 import com.geriatriccare.repository.MedicationRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class MedicationService {
 
     private final MedicationRepository medicationRepository;
+    private final DrugInteractionRepository drugInteractionRepository;
 
-    public MedicationService(MedicationRepository medicationRepository) {
+    public MedicationService(MedicationRepository medicationRepository,
+                           DrugInteractionRepository drugInteractionRepository) {
         this.medicationRepository = medicationRepository;
+        this.drugInteractionRepository = drugInteractionRepository;
     }
-
-    // ========================================
-    // CREATE
-    // ========================================
 
     public MedicationResponse createMedication(MedicationRequest request) {
-        // Validate business rules
-        validateMedicationRequest(request);
-
-        // Create entity from request
+        validateRequest(request);
         Medication medication = new Medication();
         mapRequestToEntity(request, medication);
-
-        // Set audit fields
-        medication.setCreatedAt(LocalDateTime.now());
-        medication.setUpdatedAt(LocalDateTime.now());
-        medication.setIsActive(true);
-
-        // Save and return response
+        medication.setActive(true);
         Medication saved = medicationRepository.save(medication);
-        return MedicationResponse.fromEntity(saved);
+        return mapEntityToResponse(saved);
     }
-
-    // ========================================
-    // READ
-    // ========================================
 
     public MedicationResponse getMedicationById(UUID id) {
         Medication medication = medicationRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
-        return MedicationResponse.fromEntity(medication);
+        return mapEntityToResponse(medication);
     }
 
     public List<MedicationResponse> getAllMedications() {
         return medicationRepository.findByIsActiveTrue()
                 .stream()
-                .map(MedicationResponse::fromEntity)
+                .map(this::mapEntityToResponse)
                 .collect(Collectors.toList());
     }
 
-    // ========================================
-    // SEARCH
-    // ========================================
+    public MedicationResponse updateMedication(UUID id, MedicationRequest request) {
+        validateRequest(request);
+        Medication medication = medicationRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
+        mapRequestToEntity(request, medication);
+        Medication updated = medicationRepository.save(medication);
+        return mapEntityToResponse(updated);
+    }
+
+    public void deleteMedication(UUID id) {
+        Medication medication = medicationRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
+        medication.setActive(false);
+        medicationRepository.save(medication);
+    }
 
     public List<MedicationResponse> searchByName(String name) {
         return medicationRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(name)
                 .stream()
-                .map(MedicationResponse::fromEntity)
+                .map(this::mapEntityToResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<MedicationResponse> searchByForm(MedicationForm form) {
+    public List<MedicationResponse> findByForm(MedicationForm form) {
         return medicationRepository.findByFormAndIsActiveTrue(form)
                 .stream()
-                .map(MedicationResponse::fromEntity)
+                .map(this::mapEntityToResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<MedicationResponse> searchByManufacturer(String manufacturer) {
-        return medicationRepository.findByManufacturerIgnoreCaseAndIsActiveTrue(manufacturer)
+    public List<MedicationResponse> findExpiringSoon(int days) {
+        LocalDate thresholdDate = LocalDate.now().plusDays(days);
+        return medicationRepository.findByExpirationDateBeforeAndIsActiveTrue(thresholdDate)
                 .stream()
-                .map(MedicationResponse::fromEntity)
+                .map(this::mapEntityToResponse)
                 .collect(Collectors.toList());
     }
 
-    // ========================================
-    // UPDATE
-    // ========================================
-
-    public MedicationResponse updateMedication(UUID id, MedicationRequest request) {
-        // Validate business rules
-        validateMedicationRequest(request);
-
-        // Find existing medication
-        Medication existing = medicationRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
-
-        // Update fields
-        mapRequestToEntity(request, existing);
-
-        // Update audit fields
-        existing.setUpdatedAt(LocalDateTime.now());
-
-        // Save and return response
-        Medication updated = medicationRepository.save(existing);
-        return MedicationResponse.fromEntity(updated);
-    }
-
-    // ========================================
-    // DELETE
-    // ========================================
-
-    public void deleteMedication(UUID id) {
-        // Find existing medication
-        Medication existing = medicationRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
-
-        // TODO: Check if medication is currently prescribed
-        // This will be implemented when prescription management is added
-
-        // Soft delete
-        existing.setIsActive(false);
-        existing.setUpdatedAt(LocalDateTime.now());
-        medicationRepository.save(existing);
-    }
-
-    // ========================================
-    // INVENTORY QUERIES
-    // ========================================
-
-    public List<MedicationResponse> getLowStockMedications() {
+    public List<MedicationResponse> findLowStock() {
         return medicationRepository.findLowStockMedications()
                 .stream()
-                .map(MedicationResponse::fromEntity)
+                .map(this::mapEntityToResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<MedicationResponse> getExpiredMedications() {
-        return medicationRepository.findExpiredMedications()
-                .stream()
-                .map(MedicationResponse::fromEntity)
-                .collect(Collectors.toList());
-    }
-
-    public List<MedicationResponse> getExpiringSoonMedications(Integer days) {
-        // Default to 30 days if not specified
-        int daysToCheck = (days != null && days > 0) ? days : 30;
-        LocalDate futureDate = LocalDate.now().plusDays(daysToCheck);
-
-        return medicationRepository.findExpiringSoon(futureDate)
-                .stream()
-                .map(MedicationResponse::fromEntity)
-                .collect(Collectors.toList());
-    }
-
-    // ========================================
-    // INVENTORY MANAGEMENT - NEW METHODS
-    // ========================================
-
-    /**
-     * Add stock to a medication (e.g., receiving a shipment)
-     */
-    public MedicationResponse addStock(UUID medicationId, int quantity) {
-        // Validate quantity
-        if (quantity <= 0) {
-            throw new RuntimeException("Quantity to add must be positive");
+    public MedicationResponse adjustStock(UUID id, int quantityChange) {
+        Medication medication = medicationRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
+        
+        int newQuantity = medication.getQuantityInStock() + quantityChange;
+        if (newQuantity < 0) {
+            throw new RuntimeException("Insufficient stock. Current: " + medication.getQuantityInStock() + 
+                                     ", Requested change: " + quantityChange);
         }
-
-        // Find medication
-        Medication medication = medicationRepository.findByIdAndIsActiveTrue(medicationId)
-                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + medicationId));
-
-        // Add stock
-        int newQuantity = medication.getQuantityInStock() + quantity;
+        
         medication.setQuantityInStock(newQuantity);
-        medication.setUpdatedAt(LocalDateTime.now());
-
-        // Save and return
         Medication updated = medicationRepository.save(medication);
-        return MedicationResponse.fromEntity(updated);
+        return mapEntityToResponse(updated);
     }
 
-    /**
-     * Remove stock from a medication (e.g., dispensing)
-     */
-    public MedicationResponse removeStock(UUID medicationId, int quantity) {
-        // Validate quantity
-        if (quantity <= 0) {
-            throw new RuntimeException("Quantity to remove must be positive");
-        }
-
-        // Find medication
-        Medication medication = medicationRepository.findByIdAndIsActiveTrue(medicationId)
-                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + medicationId));
-
-        // Check sufficient stock
-        if (medication.getQuantityInStock() < quantity) {
-            throw new RuntimeException(
-                String.format("Insufficient stock. Available: %d, Requested: %d",
-                    medication.getQuantityInStock(), quantity)
-            );
-        }
-
-        // Remove stock
-        int newQuantity = medication.getQuantityInStock() - quantity;
-        medication.setQuantityInStock(newQuantity);
-        medication.setUpdatedAt(LocalDateTime.now());
-
-        // Save and return
-        Medication updated = medicationRepository.save(medication);
-        return MedicationResponse.fromEntity(updated);
+    public boolean needsReorder(UUID id) {
+        Medication medication = medicationRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
+        return medication.getQuantityInStock() <= medication.getReorderLevel();
     }
 
-    /**
-     * Calculate how much stock needs to be reordered
-     * Strategy: Reorder to reach 2x the reorder level (safety stock)
-     */
-    public int calculateReorderQuantity(UUID medicationId) {
-        // Find medication
-        Medication medication = medicationRepository.findByIdAndIsActiveTrue(medicationId)
-                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + medicationId));
-
-        int currentStock = medication.getQuantityInStock();
-        int reorderLevel = medication.getReorderLevel();
-
-        // If stock is adequate, no need to reorder
-        if (currentStock > reorderLevel) {
+    public int calculateReorderQuantity(UUID id) {
+        Medication medication = medicationRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
+        
+        if (!needsReorder(id)) {
             return 0;
         }
-
-        // Calculate quantity to reach 2x reorder level (safety stock)
-        int targetStock = reorderLevel * 2;
-        return targetStock - currentStock;
+        
+        int optimalStock = medication.getReorderLevel() * 3;
+        return optimalStock - medication.getQuantityInStock();
     }
 
-    // ========================================
-    // INVENTORY SUMMARY METHODS
-    // ========================================
-
-    /**
-     * Get total count of active medications
-     */
-    public int getTotalMedicationCount() {
-        return medicationRepository.findByIsActiveTrue().size();
+    private MedicationResponse mapEntityToResponse(Medication medication) {
+        MedicationResponse response = new MedicationResponse();
+        response.setId(medication.getId());
+        response.setName(medication.getName());
+        response.setGenericName(medication.getGenericName());
+        response.setDosage(medication.getDosage());
+        response.setForm(medication.getForm());
+        response.setManufacturer(medication.getManufacturer());
+        response.setExpirationDate(medication.getExpirationDate());
+        response.setQuantityInStock(medication.getQuantityInStock());
+        response.setReorderLevel(medication.getReorderLevel());
+        response.setActive(medication.isActive());
+        response.setCreatedAt(medication.getCreatedAt());
+        response.setUpdatedAt(medication.getUpdatedAt());
+        return response;
     }
 
-    /**
-     * Get total stock quantity across all medications
-     */
-    public int getTotalStockQuantity() {
-        return medicationRepository.findByIsActiveTrue()
-                .stream()
-                .mapToInt(Medication::getQuantityInStock)
-                .sum();
-    }
-
-    /**
-     * Count how many medications need reordering
-     */
-    public int countMedicationsNeedingReorder() {
-        return medicationRepository.findLowStockMedications().size();
-    }
-
-    /**
-     * Count expired medications
-     */
-    public int countExpiredMedications() {
-        return medicationRepository.findExpiredMedications().size();
-    }
-
-    // ========================================
-    // PRIVATE HELPER METHODS
-    // ========================================
-
-    private void validateMedicationRequest(MedicationRequest request) {
-        // Validate name
+    private void validateRequest(MedicationRequest request) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new RuntimeException("Medication name is required");
         }
-
-        // Validate expiration date
-        if (request.getExpirationDate() != null && 
-            request.getExpirationDate().isBefore(LocalDate.now())) {
-            throw new RuntimeException("Expiration date must be in the future");
+        if (request.getDosage() == null || request.getDosage().trim().isEmpty()) {
+            throw new RuntimeException("Dosage is required");
         }
-
-        // Validate quantity
+        if (request.getForm() == null) {
+            throw new RuntimeException("Medication form is required");
+        }
+        if (request.getExpirationDate() != null && request.getExpirationDate().isBefore(LocalDate.now())) {
+            throw new RuntimeException("Expiration date cannot be in the past");
+        }
         if (request.getQuantityInStock() != null && request.getQuantityInStock() < 0) {
             throw new RuntimeException("Quantity cannot be negative");
         }
-
-        // Validate reorder level
         if (request.getReorderLevel() != null && request.getReorderLevel() < 0) {
             throw new RuntimeException("Reorder level cannot be negative");
         }
@@ -310,5 +178,214 @@ public class MedicationService {
         medication.setExpirationDate(request.getExpirationDate());
         medication.setQuantityInStock(request.getQuantityInStock());
         medication.setReorderLevel(request.getReorderLevel());
+    }
+
+    // ========================================
+    // DOSAGE CALCULATIONS
+    // ========================================
+
+    public DosageCalculationResponse calculateWeightBasedDosage(DosageCalculationRequest request) {
+        if (request.getPatientWeight() == null || request.getPatientWeight() <= 0) {
+            throw new RuntimeException("Weight must be positive");
+        }
+        medicationRepository.findByIdAndIsActiveTrue(request.getMedicationId())
+                .orElseThrow(() -> new RuntimeException("Medication not found"));
+        
+        double dosage = request.getPatientWeight() * request.getDosagePerKg();
+        DosageCalculationResponse response = new DosageCalculationResponse();
+        response.setCalculatedDosage(dosage);
+        return response;
+    }
+
+    public DosageCalculationResponse calculateAgeBasedDosage(DosageCalculationRequest request) {
+        if (request.getPatientAge() == null || request.getPatientAge() < 0) {
+            throw new RuntimeException("Age must be positive");
+        }
+        medicationRepository.findByIdAndIsActiveTrue(request.getMedicationId())
+                .orElseThrow(() -> new RuntimeException("Medication not found"));
+        
+        double dosage = request.getBaseDosage();
+        String ageGroup;
+        
+        if (request.getPatientAge() < 18) {
+            dosage *= 0.5;
+            ageGroup = "PEDIATRIC";
+        } else if (request.getPatientAge() >= 65) {
+            dosage *= 0.75;
+            ageGroup = "GERIATRIC";
+        } else {
+            ageGroup = "ADULT";
+        }
+        
+        DosageCalculationResponse response = new DosageCalculationResponse();
+        response.setCalculatedDosage(dosage);
+        response.setAgeGroup(ageGroup);
+        return response;
+    }
+
+    public boolean validateMaximumDailyDose(DosageCalculationRequest request) {
+        double totalDailyDose = request.getCalculatedDosage() * request.getFrequency();
+        return totalDailyDose <= request.getMaxDailyDose();
+    }
+
+    public double calculateTotalDailyDose(DosageCalculationRequest request) {
+        return request.getCalculatedDosage() * request.getFrequency();
+    }
+
+    public DosageCalculationResponse adjustDosageForRenalFunction(DosageCalculationRequest request) {
+        if (request.getGlomerularFiltrationRate() < 0) {
+            throw new RuntimeException("GFR must be positive");
+        }
+        medicationRepository.findByIdAndIsActiveTrue(request.getMedicationId())
+                .orElseThrow(() -> new RuntimeException("Medication not found"));
+        
+        double dosage = request.getBaseDosage();
+        double gfr = request.getGlomerularFiltrationRate();
+        
+        if (gfr < 15) {
+            dosage *= 0.25;
+        } else if (gfr < 30) {
+            dosage *= 0.5;
+        } else if (gfr < 60) {
+            dosage *= 0.75;
+        }
+        
+        DosageCalculationResponse response = new DosageCalculationResponse();
+        response.setCalculatedDosage(dosage);
+        response.setRenalAdjustmentApplied(true);
+        return response;
+    }
+
+    public DosageCalculationResponse adjustDosageForHepaticFunction(DosageCalculationRequest request) {
+        if (!request.getChildPughScore().matches("[ABC]")) {
+            throw new RuntimeException("Invalid Child-Pugh score. Must be A, B, or C");
+        }
+        medicationRepository.findByIdAndIsActiveTrue(request.getMedicationId())
+                .orElseThrow(() -> new RuntimeException("Medication not found"));
+        
+        double dosage = request.getBaseDosage();
+        
+        switch (request.getChildPughScore()) {
+            case "B":
+                dosage *= 0.75;
+                break;
+            case "C":
+                dosage *= 0.5;
+                break;
+        }
+        
+        DosageCalculationResponse response = new DosageCalculationResponse();
+        response.setCalculatedDosage(dosage);
+        response.setHepaticAdjustmentApplied(true);
+        return response;
+    }
+
+    public DosageCalculationResponse calculateComplexDosage(DosageCalculationRequest request) {
+        medicationRepository.findByIdAndIsActiveTrue(request.getMedicationId())
+                .orElseThrow(() -> new RuntimeException("Medication not found"));
+        
+        double dosage = request.getPatientWeight() * request.getDosagePerKg();
+        DosageCalculationResponse response = new DosageCalculationResponse();
+        
+        if (request.getPatientAge() < 18) {
+            dosage *= 0.5;
+            response.setAgeGroup("PEDIATRIC");
+            response.addWarning("Pediatric patient - reduced dosage applied");
+        } else if (request.getPatientAge() >= 65) {
+            dosage *= 0.75;
+            response.setAgeGroup("GERIATRIC");
+            response.addWarning("Geriatric patient - monitor closely");
+        } else {
+            response.setAgeGroup("ADULT");
+        }
+        
+        if (request.getGlomerularFiltrationRate() != null) {
+            double gfr = request.getGlomerularFiltrationRate();
+            if (gfr < 15) {
+                dosage *= 0.25;
+                response.addWarning("End-stage renal disease - dosage significantly reduced");
+            } else if (gfr < 30) {
+                dosage *= 0.5;
+                response.addWarning("Severe renal impairment - dosage reduced");
+            } else if (gfr < 60) {
+                dosage *= 0.75;
+                response.addWarning("Moderate renal impairment - dosage adjusted");
+            }
+            response.setRenalAdjustmentApplied(true);
+        }
+        
+        if (request.getChildPughScore() != null) {
+            switch (request.getChildPughScore()) {
+                case "B":
+                    dosage *= 0.75;
+                    response.addWarning("Moderate hepatic impairment - dosage adjusted");
+                    break;
+                case "C":
+                    dosage *= 0.5;
+                    response.addWarning("Severe hepatic impairment - dosage significantly reduced");
+                    break;
+            }
+            response.setHepaticAdjustmentApplied(true);
+        }
+        
+        response.setCalculatedDosage(dosage);
+        return response;
+    }
+
+    // ========================================
+    // DRUG INTERACTION CHECKING
+    // ========================================
+
+    public InteractionCheckResponse checkDrugInteractions(InteractionCheckRequest request) {
+        if (request.getMedicationNames() == null) {
+            throw new RuntimeException("Medication names cannot be null");
+        }
+        
+        InteractionCheckResponse response = new InteractionCheckResponse();
+        List<String> medicationNames = request.getMedicationNames();
+        
+        if (medicationNames.size() < 2) {
+            return response;
+        }
+        
+        for (int i = 0; i < medicationNames.size(); i++) {
+            for (int j = i + 1; j < medicationNames.size(); j++) {
+                String med1 = medicationNames.get(i);
+                String med2 = medicationNames.get(j);
+                
+                if (med1.equals(med2)) {
+                    continue;
+                }
+                
+                Optional<DrugInteraction> interaction = 
+                    drugInteractionRepository.findInteraction(med1, med2);
+                
+                if (interaction.isPresent()) {
+                    DrugInteraction di = interaction.get();
+                    response.addInteraction(
+                        di.getMedication1Name(),
+                        di.getMedication2Name(),
+                        di.getSeverity(),
+                        di.getDescription(),
+                        di.getRecommendation()
+                    );
+                }
+            }
+        }
+        
+        return response;
+    }
+
+    public InteractionCheckResponse checkDrugInteractionsByIds(InteractionCheckRequest request) {
+        List<String> medicationNames = request.getMedicationIds().stream()
+                .map(id -> medicationRepository.findByIdAndIsActiveTrue(id)
+                        .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id)))
+                .map(Medication::getName)
+                .collect(Collectors.toList());
+        
+        InteractionCheckRequest nameRequest = new InteractionCheckRequest();
+        nameRequest.setMedicationNames(medicationNames);
+        
+        return checkDrugInteractions(nameRequest);
     }
 }

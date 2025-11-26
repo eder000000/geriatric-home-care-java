@@ -66,12 +66,10 @@ public class Medication {
     @JoinColumn(name = "updated_by", nullable = false)
     private User updatedBy;
 
-    // Constructors
     public Medication() {
         this.isActive = true;
     }
 
-    // Lifecycle callbacks
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -83,7 +81,6 @@ public class Medication {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public UUID getId() {
         return id;
     }
@@ -162,6 +159,14 @@ public class Medication {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public boolean isActive() {
+        return isActive != null && isActive;
+    }
+
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
 
     public LocalDateTime getCreatedAt() {
