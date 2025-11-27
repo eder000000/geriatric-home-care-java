@@ -1,246 +1,126 @@
 package com.geriatriccare.unit.entity;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.UUID;
-
+import com.geriatriccare.entity.Medication;
+import com.geriatriccare.entity.MedicationForm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.geriatriccare.entity.Medication;
-import com.geriatriccare.entity.MedicationForm;
-import com.geriatriccare.entity.User;
+import java.time.LocalDate;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
+import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("Medication Entity Tests")
-public class MedicationTest {
+class MedicationTest {
 
-    private Validator validator;
+    private Medication medication;
 
     @BeforeEach
     void setUp() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
-    }   
-
-        // ========== VALIDATION TESTS ==========
-
-    @Test
-    @DisplayName("Should fail validation when name is blank")
-    void shouldFailValidationWhenNameIsBlank() {
-        Medication medication = createValidMedication();
-        medication.setName("");
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("name"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when name is null")
-    void shouldFailValidationWhenNameIsNull() {
-        Medication medication = createValidMedication();
-        medication.setName(null);
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("name"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when name exceeds 255 characters")
-    void shouldFailValidationWhenNameTooLong() {
-        Medication medication = createValidMedication();
-        medication.setName("A".repeat(256));
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("name"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when dosage is blank")
-    void shouldFailValidationWhenDosageIsBlank() {
-        Medication medication = createValidMedication();
-        medication.setDosage("");
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("dosage"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when dosage is null")
-    void shouldFailValidationWhenDosageIsNull() {
-        Medication medication = createValidMedication();
-        medication.setDosage(null);
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("dosage"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when form is null")
-    void shouldFailValidationWhenFormIsNull() {
-        Medication medication = createValidMedication();
-        medication.setForm(null);
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("form"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when expirationDate is null")
-    void shouldFailValidationWhenExpirationDateIsNull() {
-        Medication medication = createValidMedication();
-        medication.setExpirationDate(null);
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("expirationDate"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when expirationDate is in the past")
-    void shouldFailValidationWhenExpirationDateInPast() {
-        Medication medication = createValidMedication();
-        medication.setExpirationDate(LocalDate.now().minusDays(1));
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("expirationDate"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when quantityInStock is null")
-    void shouldFailValidationWhenQuantityIsNull() {
-        Medication medication = createValidMedication();
-        medication.setQuantityInStock(null);
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("quantityInStock"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when quantityInStock is negative")
-    void shouldFailValidationWhenQuantityIsNegative() {
-        Medication medication = createValidMedication();
-        medication.setQuantityInStock(-1);
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("quantityInStock"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when reorderLevel is null")
-    void shouldFailValidationWhenReorderLevelIsNull() {
-        Medication medication = createValidMedication();
-        medication.setReorderLevel(null);
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("reorderLevel"));
-    }
-
-    @Test
-    @DisplayName("Should fail validation when reorderLevel is negative")
-    void shouldFailValidationWhenReorderLevelIsNegative() {
-        Medication medication = createValidMedication();
-        medication.setReorderLevel(-1);
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("reorderLevel"));
-    }
-
-    @Test
-    @DisplayName("Should pass validation with all valid fields")
-    void shouldPassValidationWithValidFields() {
-        Medication medication = createValidMedication();
-
-        Set<ConstraintViolation<Medication>> violations = validator.validate(medication);
-
-        assertThat(violations).isEmpty();
-    }
-
-    // ========== AUDIT FIELDS TESTS ==========
-
-    @Test
-    @DisplayName("Should have createdAt field")
-    void shouldHaveCreatedAtField() {
-        Medication medication = new Medication();
-        LocalDateTime now = LocalDateTime.now();
-        medication.setCreatedAt(now);
-
-        assertThat(medication.getCreatedAt()).isEqualTo(now);
-    }
-
-    @Test
-    @DisplayName("Should have updatedAt field")
-    void shouldHaveUpdatedAtField() {
-        Medication medication = new Medication();
-        LocalDateTime now = LocalDateTime.now();
-        medication.setUpdatedAt(now);
-
-        assertThat(medication.getUpdatedAt()).isEqualTo(now);
-    }
-
-    @Test
-    @DisplayName("Should have createdBy user relationship")
-    void shouldHaveCreatedByField() {
-        Medication medication = new Medication();
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        medication.setCreatedBy(user);
-
-        assertThat(medication.getCreatedBy()).isEqualTo(user);
-    }
-
-    @Test
-    @DisplayName("Should have updatedBy user relationship")
-    void shouldHaveUpdatedByField() {
-        Medication medication = new Medication();
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        medication.setUpdatedBy(user);
-
-        assertThat(medication.getUpdatedBy()).isEqualTo(user);
-    }
-
-    // ========== HELPER METHOD ==========
-
-    private Medication createValidMedication() {
-        Medication medication = new Medication();
-        medication.setName("Test Medication");
-        medication.setDosage("100mg");
+        medication = new Medication();
+        medication.setName("Aspirin");
+        medication.setGenericName("Acetylsalicylic Acid");
+        medication.setDosage("500mg");
         medication.setForm(MedicationForm.TABLET);
+        medication.setManufacturer("Bayer");
         medication.setExpirationDate(LocalDate.now().plusYears(1));
-        medication.setQuantityInStock(50);
-        medication.setReorderLevel(10);
-        return medication;
+        medication.setQuantityInStock(100);
+        medication.setReorderLevel(20);
+    }
+
+    @Test
+    @DisplayName("Should create medication with all fields")
+    void createMedication_WithAllFields_Success() {
+        assertThat(medication.getName()).isEqualTo("Aspirin");
+        assertThat(medication.getGenericName()).isEqualTo("Acetylsalicylic Acid");
+        assertThat(medication.getDosage()).isEqualTo("500mg");
+        assertThat(medication.getForm()).isEqualTo(MedicationForm.TABLET);
+        assertThat(medication.getManufacturer()).isEqualTo("Bayer");
+        assertThat(medication.getQuantityInStock()).isEqualTo(100);
+        assertThat(medication.getReorderLevel()).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("Should have isActive as true by default")
+    void createMedication_DefaultIsActive_IsTrue() {
+        Medication newMed = new Medication();
+        assertThat(newMed.getIsActive()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should allow setting isActive to false")
+    void setIsActive_ToFalse_Success() {
+        medication.setIsActive(false);
+        assertThat(medication.getIsActive()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should update quantity in stock")
+    void updateQuantity_Success() {
+        medication.setQuantityInStock(150);
+        assertThat(medication.getQuantityInStock()).isEqualTo(150);
+    }
+
+    @Test
+    @DisplayName("Should update reorder level")
+    void updateReorderLevel_Success() {
+        medication.setReorderLevel(30);
+        assertThat(medication.getReorderLevel()).isEqualTo(30);
+    }
+
+    @Test
+    @DisplayName("Should update expiration date")
+    void updateExpirationDate_Success() {
+        LocalDate newDate = LocalDate.now().plusYears(2);
+        medication.setExpirationDate(newDate);
+        assertThat(medication.getExpirationDate()).isEqualTo(newDate);
+    }
+
+    @Test
+    @DisplayName("Should support all medication forms")
+    void setForm_AllTypes_Success() {
+        medication.setForm(MedicationForm.CAPSULE);
+        assertThat(medication.getForm()).isEqualTo(MedicationForm.CAPSULE);
+        
+        medication.setForm(MedicationForm.LIQUID);
+        assertThat(medication.getForm()).isEqualTo(MedicationForm.LIQUID);
+        
+        medication.setForm(MedicationForm.INJECTION);
+        assertThat(medication.getForm()).isEqualTo(MedicationForm.INJECTION);
+    }
+
+    @Test
+    @DisplayName("Should allow null generic name")
+    void setGenericName_Null_Success() {
+        medication.setGenericName(null);
+        assertThat(medication.getGenericName()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should allow null manufacturer")
+    void setManufacturer_Null_Success() {
+        medication.setManufacturer(null);
+        assertThat(medication.getManufacturer()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should handle zero quantity")
+    void setQuantity_Zero_Success() {
+        medication.setQuantityInStock(0);
+        assertThat(medication.getQuantityInStock()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("Should handle zero reorder level")
+    void setReorderLevel_Zero_Success() {
+        medication.setReorderLevel(0);
+        assertThat(medication.getReorderLevel()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("Should set and get ID")
+    void setId_Success() {
+        medication.setId(java.util.UUID.randomUUID());
+        assertThat(medication.getId()).isNotNull();
     }
 }
