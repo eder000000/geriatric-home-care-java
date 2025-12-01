@@ -1,13 +1,9 @@
 package com.geriatriccare.config;
 
-import com.geriatriccare.security.CustomUserDetailsService;
-import com.geriatriccare.security.JwtAuthenticationEntryPoint;
 import com.geriatriccare.security.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,76 +23,66 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
-    
-    @Autowired
-    private JwtAuthenticationEntryPoint unauthorizedHandler;
-    
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
-    
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/h2-console/**", "/api/auth/**")
+            )
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin()) // Allow H2 console frames
+            )
+            .authorizeHttpRequests(auth -> auth
+                // Public endpoints
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll() // Allow H2 console
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/info").permitAll()
+                
+                // Secured endpoints
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/patients/**").hasAnyRole("ADMIN", "CAREGIVER", "OWNER")
+                .requestMatchers("/api/medications/**").hasAnyRole("ADMIN", "CAREGIVER", "OWNER")
+                .requestMatchers("/api/careplans/**").hasAnyRole("ADMIN", "CAREGIVER", "OWNER")
+                
+                // All other requests require authentication
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(customUserDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
-    
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-    
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authz -> authz
-                // Public endpoints - these should NOT require authentication
-                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/check-email").permitAll()
-                .requestMatchers("/api/test/public").permitAll()
-                .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers("/health", "/actuator/health").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/error").permitAll()
-                
-                // Role-based endpoints - Updated with OWNER role
-                .requestMatchers("/api/owner/**").hasRole("OWNER")
-                .requestMatchers("/api/admin/**").hasAnyRole("OWNER", "ADMIN")
-                .requestMatchers("/api/caregiver/**").hasAnyRole("OWNER", "ADMIN", "CAREGIVER")
-                .requestMatchers("/api/family/**").hasAnyRole("OWNER", "ADMIN", "CAREGIVER", "FAMILY")
-                .requestMatchers("/api/patient/**").hasAnyRole("OWNER", "ADMIN", "CAREGIVER", "FAMILY", "PATIENT")
-                
-                // All other requests need authentication
-                .anyRequest().authenticated()
-            );
-        
-        http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        
-        return http.build();
-    }
-    
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
