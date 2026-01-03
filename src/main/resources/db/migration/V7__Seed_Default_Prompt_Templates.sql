@@ -1,256 +1,312 @@
--- Seed Default Prompt Templates
--- File: src/main/resources/db/migration/V7__Seed_Default_Prompt_Templates.sql
+-- V7: Seed Default Prompt Templates
 
--- 1. Medication Recommendation Template
-INSERT INTO prompt_templates (
-    id, name, category, template, version, is_active,
-    medical_context, safety_guidelines, expected_variables, description, created_at
-) VALUES (
+-- Health Assessment Template
+INSERT INTO prompt_templates (id, name, description, category, template, medical_context, safety_guidelines, expected_variables, version, is_active, created_at, updated_at)
+VALUES (
     RANDOM_UUID(),
-    'medication-recommendation',
-    'MEDICATION_RECOMMENDATION',
-    'Patient Profile:
-- Age: ${patientAge} years
-- Weight: ${patientWeight} kg
-- Gender: ${patientGender}
-- Medical Conditions: ${medicalConditions}
-- Current Medications: ${currentMedications}
-- Known Allergies: ${allergies}
+    'Comprehensive Health Assessment',
+    'Template for conducting comprehensive geriatric health assessments',
+    'HEALTH_ASSESSMENT',
+    'Conduct a comprehensive health assessment for ${patientName}, age ${age}, with the following conditions: ${conditions}.
 
-Clinical Situation:
-${clinicalSituation}
+Assessment Areas:
+1. Physical Health:
+   - Vital signs: ${vitalSigns}
+   - Mobility: ${mobilityStatus}
+   - Pain level: ${painLevel}
 
-Based on this geriatric patient profile, please recommend appropriate medications. For each recommendation, provide:
-1. Medication name (generic and brand if applicable)
-2. Recommended dosage and frequency
-3. Route of administration
-4. Clinical rationale for this choice
-5. Potential side effects to monitor (especially geriatric-specific)
-6. Drug interactions with current medications
-7. Alternative options if applicable
-8. Special considerations for elderly patients
+2. Cognitive Function:
+   - Mental status: ${mentalStatus}
+   - Memory concerns: ${memoryConcerns}
 
-Please format your response as a JSON array with the following structure:
-{
-  "recommendations": [
-    {
-      "medicationName": "...",
-      "genericName": "...",
-      "dosage": "...",
-      "frequency": "...",
-      "route": "...",
-      "rationale": "...",
-      "sideEffects": ["..."],
-      "interactions": ["..."],
-      "alternatives": ["..."],
-      "geriatricConsiderations": "...",
-      "confidenceScore": 0.0-1.0
-    }
-  ],
-  "warnings": ["..."],
-  "additionalNotes": "..."
-}',
+3. Daily Living Activities:
+   - ADL status: ${adlStatus}
+   - IADL status: ${iadlStatus}
+
+4. Medications:
+   - Current medications: ${medications}
+   - Adherence: ${adherence}
+
+Based on this assessment, provide:
+- Overall health status summary
+- Risk factors identified
+- Recommended interventions
+- Follow-up recommendations',
+    'For geriatric patients requiring comprehensive health evaluation',
+    'Ensure all vital signs are measured accurately. Respect patient dignity during assessment. Note any signs of distress or discomfort.',
+    'patientName, age, conditions, vitalSigns, mobilityStatus, painLevel, mentalStatus, memoryConcerns, adlStatus, iadlStatus, medications, adherence',
     1,
-    TRUE,
-    'You are a clinical pharmacist specializing in geriatric medicine. Your recommendations must follow evidence-based guidelines and consider age-related pharmacokinetic and pharmacodynamic changes. Always apply the Beers Criteria for potentially inappropriate medications in older adults. Prioritize patient safety above all else.',
-    '1. Always check for drug-drug interactions
-2. Consider renal and hepatic function in elderly patients
-3. Start with lowest effective dose (start low, go slow)
-4. Avoid medications on the Beers Criteria when possible
-5. Consider fall risk and anticholinergic burden
-6. Monitor for adverse drug events carefully
-7. Ensure recommendations are evidence-based
-8. Flag any contraindications clearly',
-    'patientAge,patientWeight,patientGender,medicalConditions,currentMedications,allergies,clinicalSituation',
-    'Template for generating medication recommendations for geriatric patients',
+    true,
+    CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 );
 
--- 2. Drug Interaction Analysis Template
-INSERT INTO prompt_templates (
-    id, name, category, template, version, is_active,
-    medical_context, safety_guidelines, expected_variables, description, created_at
-) VALUES (
+-- Care Plan Generation Template
+INSERT INTO prompt_templates (id, name, description, category, template, medical_context, safety_guidelines, expected_variables, version, is_active, created_at, updated_at)
+VALUES (
     RANDOM_UUID(),
-    'drug-interaction-analysis',
-    'DRUG_INTERACTION',
-    'Analyze potential drug interactions for the following medication regimen:
-
-Medications:
-${medications}
-
-Patient Information:
-- Age: ${patientAge} years
-- Renal Function: ${renalFunction}
-- Hepatic Function: ${hepaticFunction}
-- Current Medical Conditions: ${medicalConditions}
-
-Please provide a comprehensive drug interaction analysis including:
-
-1. **Major Interactions** (Contraindicated or severe)
-2. **Moderate Interactions** (Require monitoring or dose adjustment)
-3. **Minor Interactions** (Low clinical significance)
-
-For each interaction, provide:
-- Interacting medications
-- Mechanism of interaction
-- Clinical significance
-- Recommended action
-- Monitoring parameters
-- Alternative medications if needed
-
-Format as JSON:
-{
-  "majorInteractions": [...],
-  "moderateInteractions": [...],
-  "minorInteractions": [...],
-  "overallRiskAssessment": "...",
-  "recommendations": [...]
-}',
-    1,
-    TRUE,
-    'You are a clinical pharmacist expert in drug interactions and pharmacotherapy. Analyze interactions based on mechanism, severity, and clinical significance. Consider patient-specific factors including age, organ function, and comorbidities.',
-    '1. Identify all potential drug-drug interactions
-2. Consider pharmacokinetic and pharmacodynamic interactions
-3. Assess clinical significance in context of patient factors
-4. Provide actionable recommendations
-5. Suggest safer alternatives when appropriate
-6. Consider food-drug and disease-drug interactions',
-    'medications,patientAge,renalFunction,hepaticFunction,medicalConditions',
-    'Template for comprehensive drug interaction analysis',
-    CURRENT_TIMESTAMP
-);
-
--- 3. Dosage Calculation Template
-INSERT INTO prompt_templates (
-    id, name, category, template, version, is_active,
-    medical_context, safety_guidelines, expected_variables, description, created_at
-) VALUES (
-    RANDOM_UUID(),
-    'dosage-calculation',
-    'DOSAGE_CALCULATION',
-    'Calculate appropriate dosage for:
-
-Medication: ${medicationName}
-Patient Age: ${patientAge} years
-Patient Weight: ${patientWeight} kg
-Indication: ${indication}
-Renal Function (CrCl): ${creatinineClearance} mL/min
-Hepatic Function: ${hepaticFunction}
-
-Additional Factors:
-${additionalFactors}
-
-Please calculate:
-1. Initial dose
-2. Maintenance dose
-3. Frequency of administration
-4. Route of administration
-5. Dose adjustments needed for renal/hepatic impairment
-6. Maximum safe dose
-7. Monitoring parameters
-
-Provide detailed rationale for each calculation, citing relevant guidelines or studies.
-
-Format as JSON:
-{
-  "initialDose": "...",
-  "maintenanceDose": "...",
-  "frequency": "...",
-  "route": "...",
-  "adjustments": {...},
-  "maximumDose": "...",
-  "rationale": "...",
-  "monitoring": [...],
-  "warnings": [...]
-}',
-    1,
-    TRUE,
-    'You are a clinical pharmacist with expertise in pharmacokinetics and dose optimization. Calculate doses based on patient-specific parameters, considering age-related changes in drug metabolism and organ function. Always prioritize safety and provide conservative estimates for elderly patients.',
-    '1. Use evidence-based dosing guidelines
-2. Adjust for renal/hepatic impairment
-3. Consider drug interactions affecting dosing
-4. Apply weight-based dosing appropriately
-5. Account for geriatric pharmacokinetic changes
-6. Provide monitoring parameters
-7. Include maximum safe doses
-8. Flag when therapeutic drug monitoring is needed',
-    'medicationName,patientAge,patientWeight,indication,creatinineClearance,hepaticFunction,additionalFactors',
-    'Template for personalized dosage calculations',
-    CURRENT_TIMESTAMP
-);
-
--- 4. Care Plan Generation Template
-INSERT INTO prompt_templates (
-    id, name, category, template, version, is_active,
-    medical_context, safety_guidelines, expected_variables, description, created_at
-) VALUES (
-    RANDOM_UUID(),
-    'care-plan-generation',
+    'Personalized Care Plan Generator',
+    'Template for generating individualized care plans based on patient needs',
     'CARE_PLAN',
-    'Generate a comprehensive care plan for:
+    'Create a personalized care plan for ${patientName}, ${age} years old, diagnosed with ${diagnoses}.
 
 Patient Profile:
-- Age: ${patientAge} years
-- Medical Conditions: ${medicalConditions}
-- Functional Status: ${functionalStatus}
-- Cognitive Status: ${cognitiveStatus}
-- Living Situation: ${livingSituation}
-- Support System: ${supportSystem}
-- Current Medications: ${currentMedications}
+- Living situation: ${livingSituation}
+- Support system: ${supportSystem}
+- Current functional status: ${functionalStatus}
+- Goals: ${patientGoals}
 
-Care Goals:
-${careGoals}
+Care Plan Components:
+1. Medical Management:
+   - Medications: ${medications}
+   - Required monitoring: ${monitoring}
+   - Specialist care needed: ${specialists}
 
-Please create a personalized care plan including:
+2. Daily Care Activities:
+   - Personal care needs: ${personalCare}
+   - Nutrition requirements: ${nutrition}
+   - Exercise/mobility plan: ${exercise}
 
-1. **Medical Management**
-   - Medication management strategies
-   - Monitoring requirements
-   - Follow-up schedule
+3. Safety Considerations:
+   - Fall risk: ${fallRisk}
+   - Home modifications needed: ${homeModifications}
+   - Emergency protocols: ${emergencyProtocols}
 
-2. **Activities of Daily Living (ADL) Support**
-   - Personal care needs
-   - Mobility assistance
-   - Safety measures
+4. Psychosocial Support:
+   - Mental health needs: ${mentalHealth}
+   - Social engagement: ${socialEngagement}
+   - Family involvement: ${familyInvolvement}
 
-3. **Nutrition and Hydration**
-   - Dietary recommendations
-   - Nutritional monitoring
-   - Special considerations
-
-4. **Cognitive and Emotional Support**
-   - Mental health strategies
-   - Social engagement activities
-   - Family involvement
-
-5. **Safety and Fall Prevention**
-   - Environmental modifications
-   - Risk assessments
-   - Emergency protocols
-
-6. **Care Team Coordination**
-   - Healthcare provider roles
-   - Caregiver responsibilities
-   - Communication protocols
-
-Format as JSON with specific, actionable tasks.',
+Generate a comprehensive, actionable care plan with specific interventions, timeline, and success metrics.',
+    'For creating individualized care plans for elderly patients with multiple comorbidities',
+    'Ensure care plan is realistic and considers patient preferences. Include family/caregiver input. Address safety concerns explicitly.',
+    'patientName, age, diagnoses, livingSituation, supportSystem, functionalStatus, patientGoals, medications, monitoring, specialists, personalCare, nutrition, exercise, fallRisk, homeModifications, emergencyProtocols, mentalHealth, socialEngagement, familyInvolvement',
     1,
-    TRUE,
-    'You are a geriatric care specialist creating evidence-based, person-centered care plans. Consider the whole person including physical, cognitive, emotional, and social needs. Ensure recommendations are practical and achievable.',
-    '1. Create realistic, achievable goals
-2. Consider patient and family preferences
-3. Address safety as top priority
-4. Include measurable outcomes
-5. Coordinate care across providers
-6. Plan for potential complications
-7. Include caregiver support
-8. Ensure cultural sensitivity',
-    'patientAge,medicalConditions,functionalStatus,cognitiveStatus,livingSituation,supportSystem,currentMedications,careGoals',
-    'Template for generating comprehensive geriatric care plans',
+    true,
+    CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 );
 
--- Create indexes for faster template retrieval
-CREATE INDEX IF NOT EXISTS idx_prompt_templates_name_active ON prompt_templates(name, is_active);
-CREATE INDEX IF NOT EXISTS idx_prompt_templates_category_active ON prompt_templates(category, is_active);
+-- Medication Review Template
+INSERT INTO prompt_templates (id, name, description, category, template, medical_context, safety_guidelines, expected_variables, version, is_active, created_at, updated_at)
+VALUES (
+    RANDOM_UUID(),
+    'Medication Safety Review',
+    'Template for comprehensive medication review and optimization',
+    'MEDICATION',
+    'Perform a comprehensive medication review for ${patientName}, age ${age}.
+
+Current Medication List:
+${currentMedications}
+
+Patient Information:
+- Diagnoses: ${diagnoses}
+- Allergies: ${allergies}
+- Renal function: ${renalFunction}
+- Hepatic function: ${hepaticFunction}
+- Recent labs: ${recentLabs}
+
+Review Focus Areas:
+1. Drug-Drug Interactions
+   - Identify potential interactions
+   - Assess severity and clinical significance
+
+2. Drug-Disease Interactions
+   - Check for contraindications
+   - Identify medications potentially worsening conditions
+
+3. Dosing Appropriateness
+   - Age-appropriate dosing
+   - Renal/hepatic dose adjustments needed
+   - Beers Criteria considerations
+
+4. Medication Burden
+   - Pill burden assessment
+   - Simplification opportunities
+   - Deprescribing candidates
+
+5. Adherence Barriers
+   - Cost considerations
+   - Administration complexity
+   - Side effect profile
+
+Provide:
+- Identified issues with risk levels
+- Specific recommendations for optimization
+- Alternative medication suggestions if appropriate
+- Monitoring requirements',
+    'For geriatric medication review to optimize therapy and reduce adverse events',
+    'CRITICAL: Flag all serious drug interactions immediately. Consider age-related pharmacokinetic changes. Never recommend discontinuing medications without physician consultation.',
+    'patientName, age, currentMedications, diagnoses, allergies, renalFunction, hepaticFunction, recentLabs',
+    1,
+    true,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+);
+
+-- Fall Risk Assessment Template
+INSERT INTO prompt_templates (id, name, description, category, template, medical_context, safety_guidelines, expected_variables, version, is_active, created_at, updated_at)
+VALUES (
+    RANDOM_UUID(),
+    'Fall Risk Assessment and Prevention',
+    'Template for evaluating fall risk and creating prevention strategies',
+    'HEALTH_ASSESSMENT',
+    'Conduct fall risk assessment for ${patientName}, age ${age}.
+
+Fall History:
+- Previous falls: ${previousFalls}
+- Circumstances: ${fallCircumstances}
+- Injuries sustained: ${injuries}
+
+Risk Factors Assessment:
+1. Intrinsic Factors:
+   - Gait/balance: ${gaitBalance}
+   - Vision: ${visionStatus}
+   - Cognition: ${cognition}
+   - Medications: ${medications}
+   - Chronic conditions: ${conditions}
+   - Orthostatic hypotension: ${orthostaticStatus}
+
+2. Extrinsic Factors:
+   - Home environment: ${homeEnvironment}
+   - Footwear: ${footwear}
+   - Assistive devices: ${assistiveDevices}
+   - Lighting: ${lighting}
+
+3. Functional Status:
+   - Mobility: ${mobility}
+   - ADL independence: ${adlStatus}
+   - Use of bathroom at night: ${nighttimeMobility}
+
+Based on this assessment, provide:
+1. Overall fall risk level (low/moderate/high)
+2. Primary risk factors identified
+3. Specific interventions to reduce risk:
+   - Medical interventions
+   - Environmental modifications
+   - Exercise/therapy recommendations
+   - Assistive device recommendations
+4. Monitoring plan
+5. Education topics for patient/family',
+    'For comprehensive fall risk evaluation and prevention planning in elderly patients',
+    'Falls are a leading cause of injury in elderly. Take all risk factors seriously. Recommend immediate intervention for high-risk patients.',
+    'patientName, age, previousFalls, fallCircumstances, injuries, gaitBalance, visionStatus, cognition, medications, conditions, orthostaticStatus, homeEnvironment, footwear, assistiveDevices, lighting, mobility, adlStatus, nighttimeMobility',
+    1,
+    true,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+);
+
+-- Nutrition Assessment Template
+INSERT INTO prompt_templates (id, name, description, category, template, medical_context, safety_guidelines, expected_variables, version, is_active, created_at, updated_at)
+VALUES (
+    RANDOM_UUID(),
+    'Geriatric Nutrition Assessment',
+    'Template for evaluating nutritional status and creating dietary plans',
+    'HEALTH_ASSESSMENT',
+    'Perform nutrition assessment for ${patientName}, age ${age}, weight ${weight}kg, height ${height}cm.
+
+Nutritional Status:
+- BMI: ${bmi}
+- Weight change: ${weightChange}
+- Appetite: ${appetite}
+- Dietary restrictions: ${dietaryRestrictions}
+
+Medical Considerations:
+- Diagnoses: ${diagnoses}
+- Medications affecting nutrition: ${medications}
+- Swallowing status: ${swallowingStatus}
+- Dental/oral health: ${oralHealth}
+
+Current Dietary Intake:
+- Typical daily intake: ${dailyIntake}
+- Fluid intake: ${fluidIntake}
+- Supplement use: ${supplements}
+- Eating assistance needed: ${eatingAssistance}
+
+Functional Status:
+- Ability to shop: ${shopping}
+- Ability to prepare meals: ${mealPrep}
+- Financial constraints: ${financialStatus}
+
+Assessment Focus:
+1. Malnutrition risk screening
+2. Micronutrient deficiencies
+3. Hydration status
+4. Disease-specific nutrition needs
+5. Barriers to adequate nutrition
+
+Provide:
+- Nutritional risk level
+- Identified deficiencies or concerns
+- Specific dietary recommendations
+- Supplement recommendations if needed
+- Referrals needed (dietitian, speech therapy, etc.)
+- Practical strategies for patient/caregiver',
+    'For comprehensive nutritional assessment in geriatric patients',
+    'Malnutrition is common in elderly and often overlooked. Screen for dysphagia before making dietary recommendations. Consider cultural food preferences.',
+    'patientName, age, weight, height, bmi, weightChange, appetite, dietaryRestrictions, diagnoses, medications, swallowingStatus, oralHealth, dailyIntake, fluidIntake, supplements, eatingAssistance, shopping, mealPrep, financialStatus',
+    1,
+    true,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+);
+
+-- Emergency Response Template
+INSERT INTO prompt_templates (id, name, description, category, template, medical_context, safety_guidelines, expected_variables, version, is_active, created_at, updated_at)
+VALUES (
+    RANDOM_UUID(),
+    'Emergency Situation Response Guide',
+    'Template for handling common geriatric emergencies',
+    'EMERGENCY',
+    'Emergency Response Protocol for ${patientName}
+
+SITUATION: ${emergencyType}
+PATIENT STATUS: ${patientStatus}
+
+Critical Information:
+- Age: ${age}
+- Known conditions: ${conditions}
+- Current medications: ${medications}
+- Allergies: ${allergies}
+- Emergency contacts: ${emergencyContacts}
+
+Immediate Assessment Needed:
+1. Vital Signs:
+   - Level of consciousness: ${consciousness}
+   - Breathing: ${breathing}
+   - Circulation: ${circulation}
+   - Temperature: ${temperature}
+
+2. Specific Emergency Evaluation:
+   ${emergencySpecificAssessment}
+
+IMMEDIATE ACTIONS REQUIRED:
+Based on the emergency type, provide:
+1. Step-by-step immediate response actions
+2. When to call 911 vs. when to contact physician
+3. Information to provide to emergency services
+4. What NOT to do
+5. Comfort measures while waiting for help
+6. Documentation needed
+
+SPECIAL CONSIDERATIONS FOR ELDERLY:
+- Age-related response to emergency
+- Medication effects on presentation
+- Communication strategies if cognitively impaired
+- Positioning considerations
+- Prevention of secondary complications
+
+Follow-up Actions:
+- Documentation requirements
+- Family notification protocol
+- Post-emergency monitoring
+- Prevention strategies for future',
+    'For guiding appropriate emergency response in geriatric care settings',
+    'CRITICAL: In life-threatening emergencies, call 911 immediately. Do not delay emergency services. Provide clear location information. Never leave patient alone if unstable.',
+    'patientName, emergencyType, patientStatus, age, conditions, medications, allergies, emergencyContacts, consciousness, breathing, circulation, temperature, emergencySpecificAssessment',
+    1,
+    true,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+);

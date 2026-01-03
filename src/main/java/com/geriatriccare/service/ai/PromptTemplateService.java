@@ -1,230 +1,229 @@
 package com.geriatriccare.service.ai;
 
+import com.geriatriccare.dto.ai.PromptTemplateRequest;
+import com.geriatriccare.dto.ai.PromptTemplateResponse;
 import com.geriatriccare.entity.PromptCategory;
 import com.geriatriccare.entity.PromptTemplate;
 import com.geriatriccare.repository.PromptTemplateRepository;
-import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class PromptTemplateService {
-
+    
     private static final Logger log = LoggerFactory.getLogger(PromptTemplateService.class);
-
-    private final PromptTemplateRepository promptTemplateRepository;
-
-    public PromptTemplateService(PromptTemplateRepository promptTemplateRepository) {
-        this.promptTemplateRepository = promptTemplateRepository;
+    private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{([^}]+)\\}");
+    
+    private final PromptTemplateRepository templateRepository;
+    
+    @Autowired
+    public PromptTemplateService(PromptTemplateRepository templateRepository) {
+        this.templateRepository = templateRepository;
     }
-
-    /**
-     * Render a prompt template with variable substitution
-     * 
-     * @param templateName Name of the template
-     * @param variables Map of variable names to values
-     * @return Rendered prompt with variables replaced
-     */
-    @Cacheable(value = "promptTemplates", key = "#templateName")
-    public String renderTemplate(String templateName, Map<String, Object> variables) {
-        log.debug("Rendering template: {} with {} variables", templateName, variables.size());
-        
-        PromptTemplate template = promptTemplateRepository.findLatestActiveByName(templateName)
-                .orElseThrow(() -> new TemplateNotFoundException("Template not found: " + templateName));
-        
-        // Validate required variables
-        validateVariables(template, variables);
-        
-        // Perform variable substitution
-        StringSubstitutor substitutor = new StringSubstitutor(variables);
-        substitutor.setEnableUndefinedVariableException(true);
-        
-        String renderedPrompt = substitutor.replace(template.getTemplate());
-        
-        log.debug("Template rendered successfully: {}", templateName);
-        return renderedPrompt;
-    }
-
-    /**
-     * Get the medical context for a template (used as system message)
-     */
-    @Cacheable(value = "promptContext", key = "#templateName")
-    public String getTemplateContext(String templateName) {
-        PromptTemplate template = promptTemplateRepository.findLatestActiveByName(templateName)
-                .orElseThrow(() -> new TemplateNotFoundException("Template not found: " + templateName));
-        
-        StringBuilder context = new StringBuilder();
-        
-        if (template.getMedicalContext() != null) {
-            context.append(template.getMedicalContext());
-        }
-        
-        if (template.getSafetyGuidelines() != null) {
-            context.append("\n\nSafety Guidelines:\n");
-            context.append(template.getSafetyGuidelines());
-        }
-        
-        return context.toString();
-    }
-
-    /**
-     * Create a new prompt template
-     */
+    
     @Transactional
-    @CacheEvict(value = {"promptTemplates", "promptContext"}, allEntries = true)
-    public PromptTemplate createTemplate(PromptTemplate template) {
-        log.info("Creating new template: {}", template.getName());
+    public PromptTemplateResponse createTemplate(PromptTemplateRequest request) {
+        log.info("Creating new prompt template: {}", request.getName());
         
-        // Check if template name already exists
-        if (promptTemplateRepository.existsByName(template.getName())) {
-            throw new TemplateAlreadyExistsException("Template already exists: " + template.getName());
+        if (templateRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Template with name '" + request.getName() + "' already exists");
         }
         
+        PromptTemplate template = buildTemplateEntity(request);
         template.setVersion(1);
-        template.setIsActive(true);
         
-        return promptTemplateRepository.save(template);
+        PromptTemplate saved = templateRepository.save(template);
+        log.info("Created template: {} (ID: {})", saved.getName(), saved.getId());
+        
+        return convertToResponse(saved);
     }
-
-    /**
-     * Create a new version of an existing template
-     */
+    
     @Transactional
-    @CacheEvict(value = {"promptTemplates", "promptContext"}, allEntries = true)
-    public PromptTemplate createNewVersion(String templateName, PromptTemplate updatedTemplate) {
-        log.info("Creating new version of template: {}", templateName);
+    public PromptTemplateResponse updateTemplate(UUID id, PromptTemplateRequest request) {
+        log.info("Updating template: {}", id);
         
-        // Get the latest version number
-        Integer maxVersion = promptTemplateRepository.findMaxVersionByName(templateName);
-        if (maxVersion == null) {
-            throw new TemplateNotFoundException("Template not found: " + templateName);
+        PromptTemplate existingTemplate = templateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Template not found: " + id));
+        
+        existingTemplate.setIsActive(false);
+        templateRepository.save(existingTemplate);
+        
+        Integer maxVersion = templateRepository.findMaxVersionByName(existingTemplate.getName());
+        Integer newVersion = (maxVersion != null ? maxVersion : 0) + 1;
+        
+        PromptTemplate newTemplate = buildTemplateEntity(request);
+        newTemplate.setName(existingTemplate.getName());
+        newTemplate.setVersion(newVersion);
+        
+        PromptTemplate saved = templateRepository.save(newTemplate);
+        log.info("Created new version {} for template: {}", newVersion, existingTemplate.getName());
+        
+        return convertToResponse(saved);
+    }
+    
+    @Transactional(readOnly = true)
+    public PromptTemplateResponse getTemplate(UUID id) {
+        PromptTemplate template = templateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Template not found: " + id));
+        
+        return convertToResponse(template);
+    }
+    
+    @Transactional(readOnly = true)
+    public PromptTemplateResponse getLatestTemplateByName(String name) {
+        List<PromptTemplate> versions = templateRepository.findByNameOrderByVersionDesc(name);
+        
+        if (versions.isEmpty()) {
+            throw new RuntimeException("Template not found: " + name);
         }
         
-        // Deactivate old versions
-        List<PromptTemplate> oldVersions = promptTemplateRepository.findByNameOrderByVersionDesc(templateName);
-        oldVersions.forEach(t -> t.setIsActive(false));
-        promptTemplateRepository.saveAll(oldVersions);
+        PromptTemplate latest = versions.stream()
+                .filter(PromptTemplate::getIsActive)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No active version found for template: " + name));
         
-        // Create new version
-        updatedTemplate.setName(templateName);
-        updatedTemplate.setVersion(maxVersion + 1);
-        updatedTemplate.setIsActive(true);
-        
-        return promptTemplateRepository.save(updatedTemplate);
+        return convertToResponse(latest);
     }
-
-    /**
-     * Get a template by name (latest active version)
-     */
-    public PromptTemplate getTemplate(String templateName) {
-        return promptTemplateRepository.findLatestActiveByName(templateName)
-                .orElseThrow(() -> new TemplateNotFoundException("Template not found: " + templateName));
+    
+    @Transactional(readOnly = true)
+    public List<PromptTemplateResponse> getAllActiveTemplates() {
+        return templateRepository.findByIsActiveTrueOrderByCategoryAscNameAsc()
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
-
-    /**
-     * Get all templates by category
-     */
-    public List<PromptTemplate> getTemplatesByCategory(PromptCategory category) {
-        return promptTemplateRepository.findByCategoryAndIsActiveTrue(category);
+    
+    @Transactional(readOnly = true)
+    public List<PromptTemplateResponse> getTemplatesByCategory(PromptCategory category) {
+        return templateRepository.findByCategoryOrderByNameAscVersionDesc(category)
+                .stream()
+                .filter(PromptTemplate::getIsActive)
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
-
-    /**
-     * Get all active templates
-     */
-    public List<PromptTemplate> getAllActiveTemplates() {
-        return promptTemplateRepository.findByIsActiveTrueOrderByCategoryAscNameAsc();
+    
+    @Transactional(readOnly = true)
+    public List<PromptTemplateResponse> getTemplateVersions(String name) {
+        return templateRepository.findByNameOrderByVersionDesc(name)
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
-
-    /**
-     * Get all versions of a template
-     */
-    public List<PromptTemplate> getTemplateVersions(String templateName) {
-        return promptTemplateRepository.findByNameOrderByVersionDesc(templateName);
-    }
-
-    /**
-     * Deactivate a template
-     */
+    
     @Transactional
-    @CacheEvict(value = {"promptTemplates", "promptContext"}, allEntries = true)
-    public void deactivateTemplate(String templateName) {
-        log.info("Deactivating template: {}", templateName);
+    public void deactivateTemplate(UUID id) {
+        log.info("Deactivating template: {}", id);
         
-        List<PromptTemplate> templates = promptTemplateRepository.findByNameOrderByVersionDesc(templateName);
-        if (templates.isEmpty()) {
-            throw new TemplateNotFoundException("Template not found: " + templateName);
+        PromptTemplate template = templateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Template not found: " + id));
+        
+        template.setIsActive(false);
+        templateRepository.save(template);
+        
+        log.info("Deactivated template: {}", template.getName());
+    }
+    
+    @Transactional
+    public void deleteTemplate(UUID id) {
+        deactivateTemplate(id);
+    }
+    
+    public String renderTemplate(UUID templateId, Map<String, String> variables) {
+        PromptTemplate template = templateRepository.findById(templateId)
+                .orElseThrow(() -> new RuntimeException("Template not found: " + templateId));
+        
+        return renderTemplate(template.getTemplate(), variables);
+    }
+    
+    public String renderTemplate(String templateString, Map<String, String> variables) {
+        if (templateString == null || variables == null) {
+            return templateString;
         }
         
-        templates.forEach(t -> t.setIsActive(false));
-        promptTemplateRepository.saveAll(templates);
-    }
-
-    /**
-     * Activate a specific version of a template
-     */
-    @Transactional
-    @CacheEvict(value = {"promptTemplates", "promptContext"}, allEntries = true)
-    public void activateTemplateVersion(String templateName, Integer version) {
-        log.info("Activating template: {} version: {}", templateName, version);
+        String result = templateString;
+        Matcher matcher = VARIABLE_PATTERN.matcher(templateString);
         
-        // Deactivate all versions
-        List<PromptTemplate> allVersions = promptTemplateRepository.findByNameOrderByVersionDesc(templateName);
-        allVersions.forEach(t -> t.setIsActive(false));
-        promptTemplateRepository.saveAll(allVersions);
-        
-        // Activate the specified version
-        PromptTemplate template = promptTemplateRepository.findByNameAndVersion(templateName, version)
-                .orElseThrow(() -> new TemplateNotFoundException(
-                        "Template not found: " + templateName + " version " + version));
-        
-        template.setIsActive(true);
-        promptTemplateRepository.save(template);
-    }
-
-    // Helper method to validate required variables
-    private void validateVariables(PromptTemplate template, Map<String, Object> variables) {
-        if (template.getExpectedVariables() == null || template.getExpectedVariables().isEmpty()) {
-            return; // No validation required
-        }
-        
-        String[] expectedVars = template.getExpectedVariables().split(",");
-        List<String> missingVars = new ArrayList<>();
-        
-        for (String varName : expectedVars) {
-            String trimmedVar = varName.trim();
-            if (!variables.containsKey(trimmedVar)) {
-                missingVars.add(trimmedVar);
+        while (matcher.find()) {
+            String variableName = matcher.group(1);
+            String value = variables.get(variableName);
+            
+            if (value != null) {
+                result = result.replace("${" + variableName + "}", value);
+            } else {
+                log.warn("Missing variable in template rendering: {}", variableName);
             }
         }
         
-        if (!missingVars.isEmpty()) {
-            throw new MissingTemplateVariablesException(
-                    "Missing required variables: " + String.join(", ", missingVars));
-        }
+        return result;
     }
-
-    // Custom Exceptions
-    public static class TemplateNotFoundException extends RuntimeException {
-        public TemplateNotFoundException(String message) {
-            super(message);
+    
+    public List<String> extractVariables(String templateString) {
+        if (templateString == null) {
+            return List.of();
         }
+        
+        Matcher matcher = VARIABLE_PATTERN.matcher(templateString);
+        return matcher.results()
+                .map(matchResult -> matchResult.group(1))
+                .distinct()
+                .collect(Collectors.toList());
     }
-
-    public static class TemplateAlreadyExistsException extends RuntimeException {
-        public TemplateAlreadyExistsException(String message) {
-            super(message);
-        }
+    
+    public boolean validateTemplate(UUID templateId, Map<String, String> variables) {
+        PromptTemplate template = templateRepository.findById(templateId)
+                .orElseThrow(() -> new RuntimeException("Template not found: " + templateId));
+        
+        List<String> requiredVariables = extractVariables(template.getTemplate());
+        
+        return requiredVariables.stream()
+                .allMatch(variables::containsKey);
     }
-
-    public static class MissingTemplateVariablesException extends RuntimeException {
-        public MissingTemplateVariablesException(String message) {
-            super(message);
-        }
+    
+    private PromptTemplate buildTemplateEntity(PromptTemplateRequest request) {
+        PromptTemplate template = new PromptTemplate();
+        template.setName(request.getName());
+        template.setDescription(request.getDescription());
+        template.setCategory(request.getCategory());
+        template.setTemplate(request.getTemplate());
+        template.setMedicalContext(request.getMedicalContext());
+        template.setSafetyGuidelines(request.getSafetyGuidelines());
+        template.setExpectedVariables(request.getExpectedVariables());
+        template.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
+        
+        return template;
+    }
+    
+    private PromptTemplateResponse convertToResponse(PromptTemplate template) {
+        List<PromptTemplate> allVersions = templateRepository.findByNameOrderByVersionDesc(template.getName());
+        Integer totalVersions = allVersions.size();
+        Integer latestVersion = allVersions.isEmpty() ? 1 : allVersions.get(0).getVersion();
+        
+        PromptTemplateResponse response = new PromptTemplateResponse();
+        response.setId(template.getId());
+        response.setName(template.getName());
+        response.setDescription(template.getDescription());
+        response.setCategory(template.getCategory());
+        response.setTemplate(template.getTemplate());
+        response.setMedicalContext(template.getMedicalContext());
+        response.setSafetyGuidelines(template.getSafetyGuidelines());
+        response.setExpectedVariables(template.getExpectedVariables());
+        response.setVersion(template.getVersion());
+        response.setIsActive(template.getIsActive());
+        response.setCreatedAt(template.getCreatedAt());
+        response.setUpdatedAt(template.getUpdatedAt());
+        response.setTotalVersions(totalVersions);
+        response.setIsLatestVersion(template.getVersion().equals(latestVersion));
+        
+        return response;
     }
 }
