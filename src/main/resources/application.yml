@@ -109,3 +109,8 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
+# Mock OpenAI Configuration (for testing without API key)
+openai:
+  mock:
+    enabled: ${OPENAI_MOCK_ENABLED:false}
