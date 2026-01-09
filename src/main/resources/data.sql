@@ -294,39 +294,138 @@ Provide:
     CURRENT_TIMESTAMP
 );
 
--- 7. Personalized Care Plan Generator
+-- 7. Personalized Care Plan Generator (UPDATED for Story 4.1.4)
 INSERT INTO prompt_templates (id, name, description, category, template, medical_context, safety_guidelines, expected_variables, version, is_active, created_at, updated_at)
 VALUES (
     RANDOM_UUID(),
     'Personalized Care Plan Generator',
-    'Template for generating individualized care plans',
+    'Comprehensive geriatric care plan generation with holistic approach',
     'CARE_PLAN',
-    'Create a personalized care plan for ${patientName}, ${age} years old, diagnosed with ${diagnoses}.
+    'You are an expert geriatric care planner with extensive experience in creating comprehensive, patient-centered care plans for elderly patients.
 
-Patient Profile:
-- Living situation: ${livingSituation}
-- Support system: ${supportSystem}
-- Functional status: ${functionalStatus}
-- Goals: ${patientGoals}
+Generate a detailed, personalized care plan for the following patient:
 
-Care Plan Components:
-1. Medical Management:
-   - Medications: ${medications}
-   - Monitoring: ${monitoring}
+**PATIENT INFORMATION:**
+- Name: ${patientName}
+- Age: ${age}
+- Date of Birth: ${dateOfBirth}
 
-2. Daily Care:
-   - Personal care: ${personalCare}
-   - Nutrition: ${nutrition}
-   - Exercise: ${exercise}
+**CARE PLAN TIMEFRAME:**
+${timeframe} (${timeframeDuration})
+${timeframeDescription}
 
-3. Safety:
-   - Fall risk: ${fallRisk}
-   - Home modifications: ${homeModifications}
+**FOCUS AREAS:**
+${focusAreas}
 
-Generate comprehensive, actionable care plan with timeline and metrics.',
-    'For creating individualized care plans for elderly patients',
-    'Ensure care plan is realistic and considers patient preferences.',
-    'patientName, age, diagnoses, livingSituation, supportSystem, functionalStatus, patientGoals, medications, monitoring, personalCare, nutrition, exercise, fallRisk, homeModifications',
+**CURRENT ASSESSMENT:**
+- Current Medical Conditions: ${currentConditions}
+- Functional Status: ${functionalStatus}
+- Cognitive Status: ${cognitiveStatus}
+- Social Support: ${socialSupport}
+- Environmental Factors: ${environmentalFactors}
+
+**PATIENT & FAMILY INPUT:**
+- Patient Goals: ${patientGoals}
+- Family Preferences: ${familyPreferences}
+
+**INSTRUCTIONS:**
+Create a comprehensive care plan that addresses all focus areas with the following sections:
+
+### Executive Summary
+Provide a brief 2-3 paragraph overview of the patient''s current status, primary concerns, and care plan objectives.
+
+### Medical Management
+- Current conditions and diagnoses
+- Medication management strategies
+- Monitoring requirements (vital signs, labs, symptoms)
+- Appointment schedule recommendations
+- Specialist referrals if needed
+
+### Activities of Daily Living (ADL) Support
+- Personal care assistance needs (bathing, dressing, grooming)
+- Mobility support and assistive devices
+- Toileting and continence management
+- Communication support strategies
+
+### Nutrition and Hydration Plan
+- Dietary requirements and restrictions
+- Meal planning and preparation assistance
+- Hydration goals and monitoring
+- Nutritional supplements if needed
+- Feeding assistance requirements
+
+### Exercise and Physical Activity
+- Recommended exercises (type, frequency, duration)
+- Physical therapy integration
+- Fall prevention exercises
+- Activity progression plan
+- Safety precautions during exercise
+
+### Safety and Fall Prevention
+- Home safety assessment and modifications needed
+- Fall risk factors and mitigation strategies
+- Emergency response plan
+- Use of assistive devices (walker, cane, grab bars)
+- Lighting and environmental safety
+
+### Cognitive Support and Mental Health
+- Cognitive stimulation activities
+- Memory support strategies
+- Behavioral management approaches
+- Depression and anxiety monitoring
+- Social interaction and engagement
+
+### Social Engagement and Quality of Life
+- Social activities and community involvement
+- Family interaction recommendations
+- Hobbies and meaningful activities
+- Isolation prevention strategies
+- Spiritual and cultural needs
+
+### Pain Management (if applicable)
+- Pain assessment schedule
+- Pharmacological interventions
+- Non-pharmacological pain management
+- Activity modifications for pain control
+
+### Goals and Objectives
+List 3-5 SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound) for this care plan period.
+
+### Monitoring and Evaluation Plan
+- Key metrics to track
+- Monitoring frequency
+- Red flags and alert criteria
+- Care plan review schedule
+- Progress documentation methods
+
+### Caregiver Instructions and Training
+- Daily care routine outline
+- Specific techniques for ADL assistance
+- Medication administration guidelines
+- Signs and symptoms to report
+- Self-care reminders for caregivers
+
+### Emergency Protocols
+- Emergency contact information
+- When to call 911
+- When to call physician
+- Hospital bag preparation
+- Advance directives status
+
+**FORMAT REQUIREMENTS:**
+- Use clear headers with ### for each section
+- Be specific and actionable
+- Consider geriatric best practices and age-appropriate care
+- Address safety concerns proactively
+- Include family caregiver support
+- Be realistic and achievable
+- Use patient-centered language
+- Consider quality of life and dignity
+
+Generate the comprehensive care plan now:',
+    'For comprehensive, individualized care planning for geriatric patients',
+    'CRITICAL: Ensure care plan is realistic, patient-centered, and considers both medical and quality of life needs. Address safety proactively.',
+    'patientName, age, dateOfBirth, timeframe, timeframeDuration, timeframeDescription, focusAreas, currentConditions, functionalStatus, cognitiveStatus, socialSupport, environmentalFactors, patientGoals, familyPreferences',
     1,
     true,
     CURRENT_TIMESTAMP,
