@@ -1,71 +1,84 @@
 package com.geriatriccare.dto.security;
 
 public enum AuditEventType {
+    // PHI Access Events
+    PHI_VIEW("PHI Viewed", "Patient health information viewed"),
+    PHI_EXPORT("PHI Exported", "Patient data exported from system"),
+    PHI_PRINT("PHI Printed", "Patient record printed"),
+    PHI_DOWNLOAD("PHI Downloaded", "Patient data downloaded"),
+    
+    // PHI Modification Events
+    PHI_CREATE("PHI Created", "New patient record created"),
+    PHI_UPDATE("PHI Updated", "Patient information updated"),
+    PHI_DELETE("PHI Deleted", "Patient record deleted"),
+    
     // Authentication Events
-    LOGIN_SUCCESS("Login Success", "User successfully logged in", "AUTHENTICATION"),
-    LOGIN_FAILURE("Login Failure", "Failed login attempt", "AUTHENTICATION"),
-    LOGOUT("Logout", "User logged out", "AUTHENTICATION"),
-    MFA_SETUP("MFA Setup", "Multi-factor authentication configured", "AUTHENTICATION"),
-    MFA_VERIFICATION("MFA Verification", "MFA code verification attempt", "AUTHENTICATION"),
-    PASSWORD_CHANGE("Password Change", "User password changed", "AUTHENTICATION"),
-    PASSWORD_RESET("Password Reset", "Password reset via token", "AUTHENTICATION"),
+    USER_LOGIN("User Login", "User successfully logged in"),
+    LOGIN_SUCCESS("Login Success", "User successfully logged in"), // Alias for backward compatibility
+    USER_LOGOUT("User Logout", "User logged out"),
+    LOGOUT("Logout", "User logged out"), // Alias for backward compatibility
+    LOGIN_FAILED("Login Failed", "Failed login attempt"),
+    LOGIN_FAILURE("Login Failure", "Failed login attempt"), // Alias for backward compatibility
+    MFA_SETUP("MFA Setup", "Multi-factor authentication configured"),
+    MFA_VERIFIED("MFA Verified", "MFA verification successful"),
+    PASSWORD_CHANGED("Password Changed", "User password changed"),
+    PASSWORD_RESET("Password Reset", "Password reset requested"),
     
-    // PHI Access Events (HIPAA Critical)
-    PHI_VIEW("PHI Viewed", "Protected Health Information viewed", "PHI_ACCESS"),
-    PHI_CREATE("PHI Created", "Protected Health Information created", "PHI_ACCESS"),
-    PHI_UPDATE("PHI Updated", "Protected Health Information updated", "PHI_ACCESS"),
-    PHI_DELETE("PHI Deleted", "Protected Health Information deleted", "PHI_ACCESS"),
-    PHI_EXPORT("PHI Exported", "Protected Health Information exported", "PHI_ACCESS"),
-    PHI_PRINT("PHI Printed", "Protected Health Information printed", "PHI_ACCESS"),
-    
-    // Data Access Events
-    PATIENT_VIEW("Patient Viewed", "Patient record accessed", "DATA_ACCESS"),
-    PATIENT_CREATE("Patient Created", "New patient record created", "DATA_ACCESS"),
-    PATIENT_UPDATE("Patient Updated", "Patient record modified", "DATA_ACCESS"),
-    PATIENT_DELETE("Patient Deleted", "Patient record deleted", "DATA_ACCESS"),
-    
-    // Administrative Events
-    USER_CREATE("User Created", "New user account created", "ADMINISTRATION"),
-    USER_UPDATE("User Updated", "User account modified", "ADMINISTRATION"),
-    USER_DELETE("User Deleted", "User account deleted", "ADMINISTRATION"),
-    USER_ROLE_CHANGE("Role Changed", "User role/permissions changed", "ADMINISTRATION"),
-    ACCOUNT_LOCKED("Account Locked", "User account locked due to failed attempts", "ADMINISTRATION"),
-    ACCOUNT_UNLOCKED("Account Unlocked", "User account unlocked by admin", "ADMINISTRATION"),
-    
-    // Security Events
-    UNAUTHORIZED_ACCESS("Unauthorized Access", "Attempted access to restricted resource", "SECURITY"),
-    SESSION_EXPIRED("Session Expired", "User session expired", "SECURITY"),
-    SESSION_REVOKED("Session Revoked", "User session revoked", "SECURITY"),
-    SUSPICIOUS_ACTIVITY("Suspicious Activity", "Suspicious behavior detected", "SECURITY"),
+    // Authorization Events
+    ACCESS_DENIED("Access Denied", "Authorization denied"),
+    UNAUTHORIZED_ACCESS("Unauthorized Access", "Unauthorized access attempt"), // Alias for backward compatibility
+    PERMISSION_GRANTED("Permission Granted", "User permission granted"),
+    PERMISSION_REVOKED("Permission Revoked", "User permission revoked"),
+    ROLE_CHANGED("Role Changed", "User role modified"),
     
     // System Events
-    SYSTEM_CONFIG_CHANGE("Config Changed", "System configuration modified", "SYSTEM"),
-    BACKUP_CREATED("Backup Created", "System backup performed", "SYSTEM"),
-    BACKUP_RESTORED("Backup Restored", "System restored from backup", "SYSTEM"),
+    SYSTEM_BACKUP("System Backup", "System backup performed"),
+    SYSTEM_RESTORE("System Restore", "System restored from backup"),
+    CONFIG_CHANGED("Configuration Changed", "System configuration modified"),
+    DATABASE_MIGRATION("Database Migration", "Database schema migration"),
     
-    // AI Events
-    AI_RECOMMENDATION("AI Recommendation", "AI-generated recommendation", "AI_OPERATION"),
-    AI_REVIEW("AI Review", "AI recommendation reviewed", "AI_OPERATION");
+    // Security Events
+    BREACH_ATTEMPT("Breach Attempt", "Potential security breach detected"),
+    SUSPICIOUS_ACTIVITY("Suspicious Activity", "Unusual user behavior detected"),
+    ACCOUNT_LOCKED("Account Locked", "User account locked"),
+    ACCOUNT_UNLOCKED("Account Unlocked", "User account unlocked"),
+    SESSION_EXPIRED("Session Expired", "User session expired"),
+    SESSION_REVOKED("Session Revoked", "User session forcefully revoked"),
+    
+    // Compliance Events
+    CONSENT_OBTAINED("Consent Obtained", "Patient consent documented"),
+    CONSENT_REVOKED("Consent Revoked", "Patient consent withdrawn"),
+    DATA_RETENTION_EXPIRED("Data Retention Expired", "Data retention period ended"),
+    AUDIT_LOG_VIEWED("Audit Log Viewed", "Audit logs accessed"),
+    COMPLIANCE_REPORT_GENERATED("Compliance Report Generated", "Compliance report created"),
+    
+    // AI/Clinical Events
+    AI_RECOMMENDATION_GENERATED("AI Recommendation Generated", "AI system generated recommendation"),
+    AI_CARE_PLAN_CREATED("AI Care Plan Created", "AI care plan generated"),
+    MEDICATION_INTERACTION_CHECKED("Medication Interaction Checked", "Drug interaction screening performed");
     
     private final String displayName;
     private final String description;
-    private final String category;
     
-    AuditEventType(String displayName, String description, String category) {
+    AuditEventType(String displayName, String description) {
         this.displayName = displayName;
         this.description = description;
-        this.category = category;
     }
     
     public String getDisplayName() { return displayName; }
     public String getDescription() { return description; }
-    public String getCategory() { return category; }
     
+    // Helper methods for HIPAAAuditService compatibility
     public boolean isPHIEvent() {
-        return category.equals("PHI_ACCESS");
+        return this == PHI_VIEW || this == PHI_EXPORT || this == PHI_PRINT || 
+               this == PHI_DOWNLOAD || this == PHI_CREATE || this == PHI_UPDATE || 
+               this == PHI_DELETE;
     }
     
     public boolean isSecurityCritical() {
-        return category.equals("SECURITY") || category.equals("PHI_ACCESS");
+        return this == BREACH_ATTEMPT || this == SUSPICIOUS_ACTIVITY || 
+               this == LOGIN_FAILED || this == LOGIN_FAILURE || 
+               this == ACCESS_DENIED || this == UNAUTHORIZED_ACCESS ||
+               this == SESSION_REVOKED || this == ACCOUNT_LOCKED;
     }
 }
