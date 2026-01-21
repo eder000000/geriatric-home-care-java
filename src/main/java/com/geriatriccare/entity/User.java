@@ -1,114 +1,268 @@
 package com.geriatriccare.entity;
 
+import com.geriatriccare.enums.UserRole;
+import com.geriatriccare.enums.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
+/**
+ * User Entity
+ * Represents a system user with role-based access control
+ * 
+ * Supports five roles: ADMIN, PHYSICIAN, CAREGIVER, FAMILY, PATIENT
+ * Integrates with Sprint 5 security features (MFA, Password Policy, Sessions)
+ */
 @Entity
-@Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)
+@Table(name = "users", indexes = {
+    @Index(name = "idx_user_email", columnList = "email"),
+    @Index(name = "idx_user_username", columnList = "username"),
+    @Index(name = "idx_user_role", columnList = "role"),
+    @Index(name = "idx_user_status", columnList = "status")
+})
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(unique = true, nullable = false)
-    @Email(message = "Email should be valid")
+    @NotBlank(message = "Username is required")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Column(unique = true, nullable = false, length = 50)
+    private String username;
+
     @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(nullable = false)
+    /**
+     * Password hash (BCrypt from Sprint 5)
+     * Never store plain-text passwords
+     */
     @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
+    @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(name = "first_name", nullable = false)
     @NotBlank(message = "First name is required")
-    @Size(max = 100, message = "First name cannot exceed 100 characters")
+    @Size(max = 50, message = "First name must not exceed 50 characters")
+    @Column(nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
     @NotBlank(message = "Last name is required")
-    @Size(max = 100, message = "Last name cannot exceed 100 characters")
+    @Size(max = 50, message = "Last name must not exceed 50 characters")
+    @Column(nullable = false, length = 50)
     private String lastName;
 
+    @Size(max = 20, message = "Phone number must not exceed 20 characters")
+    @Column(length = 20)
+    private String phoneNumber;
+
+    @NotNull(message = "Role is required")
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserRole role;
+
+    @NotNull(message = "Status is required")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private UserStatus status = UserStatus.PENDING_VERIFICATION;
+
+    /**
+     * Email verification flag
+     */
     @Column(nullable = false)
-    private UserRole role = UserRole.PATIENT;
+    private Boolean emailVerified = false;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    /**
+     * Email verification token
+     */
+    @Column(length = 100)
+    private String emailVerificationToken;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    /**
+     * Token expiration
+     */
+    private LocalDateTime emailVerificationTokenExpiry;
+
+    /**
+     * MFA enabled flag (integrates with Sprint 5 MFA)
+     */
+    @Column(nullable = false)
+    private Boolean mfaEnabled = false;
+
+    /**
+     * MFA secret (for TOTP)
+     */
+    @Column(length = 100)
+    private String mfaSecret;
+
+    /**
+     * Profile picture URL
+     */
+    @Column(length = 500)
+    private String profilePictureUrl;
+
+    /**
+     * User preferences (JSON)
+     */
+    @Column(columnDefinition = "TEXT")
+    private String preferences;
+
+    /**
+     * Last successful login timestamp
+     */
+    private LocalDateTime lastLoginAt;
+
+    /**
+     * Last login IP address
+     */
+    @Column(length = 45)
+    private String lastLoginIp;
+
+    /**
+     * Failed login attempts counter (integrates with Sprint 5 Password Policy)
+     */
+    @Column(nullable = false)
+    private Integer failedLoginAttempts = 0;
+
+    /**
+     * Account locked until (for failed login attempts)
+     */
+    private LocalDateTime lockedUntil;
+
+    /**
+     * Password last changed date (integrates with Sprint 5 Password Policy)
+     */
+    private LocalDateTime passwordChangedAt;
+
+    /**
+     * Password must be changed on next login
+     */
+    @Column(nullable = false)
+    private Boolean mustChangePassword = false;
+
+    // Audit fields
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    @Column(name = "updated_at")
+    @UpdateTimestamp
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "caregiver", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PatientCaregiver> assignedPatients = new ArrayList<>();
+    /**
+     * User who created this account
+     */
+    @Column(length = 50)
+    private String createdBy;
 
-    // Constructors
-    public User() {}
+    /**
+     * User who last updated this account
+     */
+    @Column(length = 50)
+    private String updatedBy;
 
-    public User(String email, String password, String firstName, String lastName, UserRole role) {
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.role = role;
-    }
+    /**
+     * Soft delete flag
+     */
+    @Column(nullable = false)
+    private Boolean deleted = false;
 
-    // Getters and Setters
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    private LocalDateTime deletedAt;
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    private String deletedBy;
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    // Computed properties
 
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
-
-    public UserRole getRole() { return role; }
-    public void setRole(UserRole role) { this.role = role; }
-
-    public Boolean getIsActive() { return isActive; }
-    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-    // Business methods
+    /**
+     * Get full name
+     */
+    @Transient
     public String getFullName() {
         return firstName + " " + lastName;
     }
 
-    public boolean isAdmin() {
-        return UserRole.ADMIN.equals(this.role);
+    /**
+     * Check if account is active and can login
+     */
+    @Transient
+    public boolean canLogin() {
+        return status == UserStatus.ACTIVE 
+            && emailVerified 
+            && !deleted
+            && (lockedUntil == null || lockedUntil.isBefore(LocalDateTime.now()));
     }
 
-    public boolean isCaregiver() {
-        return UserRole.CAREGIVER.equals(this.role);
+    /**
+     * Check if account is locked due to failed login attempts
+     */
+    @Transient
+    public boolean isLocked() {
+        return lockedUntil != null && lockedUntil.isAfter(LocalDateTime.now());
+    }
+
+    /**
+     * Check if password has expired (90 days from Sprint 5)
+     */
+    @Transient
+    public boolean isPasswordExpired() {
+        if (passwordChangedAt == null) {
+            return false;
+        }
+        return passwordChangedAt.plusDays(90).isBefore(LocalDateTime.now());
+    }
+
+    /**
+     * Check if user has specific role
+     */
+    @Transient
+    public boolean hasRole(UserRole checkRole) {
+        return this.role == checkRole;
+    }
+
+    /**
+     * Check if user has any of the specified roles
+     */
+    @Transient
+    public boolean hasAnyRole(UserRole... roles) {
+        for (UserRole r : roles) {
+            if (this.role == r) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
+        if (passwordChangedAt == null) {
+            passwordChangedAt = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
