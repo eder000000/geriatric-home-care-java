@@ -1,6 +1,6 @@
 package com.geriatriccare.dto;
 
-import com.geriatriccare.entity.UserRole;
+import com.geriatriccare.enums.UserRole;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

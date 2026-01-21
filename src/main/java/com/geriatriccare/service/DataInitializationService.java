@@ -1,7 +1,8 @@
 package com.geriatriccare.service;
 
 import com.geriatriccare.entity.User;
-import com.geriatriccare.entity.UserRole;
+import com.geriatriccare.enums.UserRole;
+import com.geriatriccare.enums.UserStatus;
 import com.geriatriccare.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,7 @@ public class DataInitializationService implements ApplicationRunner {
         logger.info("Checking for default owner user...");
         
         // Check if any OWNER user exists
-        boolean ownerExists = userRepository.existsByRoleAndIsActiveTrue(UserRole.OWNER);
+        boolean ownerExists = userRepository.existsByRoleAndIsActiveTrue(UserRole.ADMIN);
         
         if (!ownerExists) {
             logger.info("No OWNER user found. Creating default owner user...");
@@ -54,8 +55,8 @@ public class DataInitializationService implements ApplicationRunner {
             owner.setLastName(defaultOwnerLastName);
             owner.setEmail(defaultOwnerEmail);
             owner.setPassword(passwordEncoder.encode(defaultOwnerPassword));
-            owner.setRole(UserRole.OWNER);
-            owner.setIsActive(true);
+            owner.setRole(UserRole.ADMIN);
+            owner.setStatus(UserStatus.ACTIVE);
             
             User savedOwner = userRepository.save(owner);
             

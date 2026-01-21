@@ -5,6 +5,7 @@ import com.geriatriccare.dto.CarePlanResponse;
 import com.geriatriccare.dto.CarePlanUpdateRequest;
 import com.geriatriccare.dto.summary.CaregiverSummary;
 import com.geriatriccare.entity.*;
+import com.geriatriccare.enums.UserRole;
 import com.geriatriccare.repository.CarePlanRepository;
 import com.geriatriccare.repository.PatientRepository;
 import com.geriatriccare.repository.UserRepository;
@@ -65,7 +66,7 @@ public class CarePlanService {
             // Validate caregiver role
             if (assignedCaregiver.getRole() != UserRole.CAREGIVER && 
                 assignedCaregiver.getRole() != UserRole.ADMIN &&
-                assignedCaregiver.getRole() != UserRole.OWNER) {
+                assignedCaregiver.getRole() != UserRole.ADMIN) {
                 throw new RuntimeException("Assigned user must have caregiver privileges");
             }
         }
@@ -145,7 +146,7 @@ public class CarePlanService {
             
             if (assignedCaregiver.getRole() != UserRole.CAREGIVER && 
                 assignedCaregiver.getRole() != UserRole.ADMIN &&
-                assignedCaregiver.getRole() != UserRole.OWNER) {
+                assignedCaregiver.getRole() != UserRole.ADMIN) {
                 throw new RuntimeException("Assigned user must have caregiver privileges");
             }
             

@@ -1,5 +1,6 @@
 package com.geriatriccare.dto.security;
 
+import com.geriatriccare.enums.AuditSeverity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

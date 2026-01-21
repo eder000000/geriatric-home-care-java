@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmailAndIsActiveTrue(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
         
-        return UserPrincipal.create(user);
+        return new UserPrincipal(user);
     }
     
     @Transactional
@@ -29,6 +29,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByIdAndIsActiveTrue(java.util.UUID.fromString(userId))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
         
-        return UserPrincipal.create(user);
+        return new UserPrincipal(user);
     }
 }

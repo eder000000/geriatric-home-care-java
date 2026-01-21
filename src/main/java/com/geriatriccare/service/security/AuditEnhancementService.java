@@ -2,7 +2,16 @@ package com.geriatriccare.service.security;
 
 import com.geriatriccare.dto.security.*;
 import com.geriatriccare.entity.AIAuditLog;
+import com.geriatriccare.enums.AuditEventType;
+import com.geriatriccare.enums.AuditSeverity;
 import com.geriatriccare.repository.AIAuditLogRepository;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +22,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
+
+
 
 @Service
 public class AuditEnhancementService {
@@ -364,7 +368,7 @@ public class AuditEnhancementService {
     
     private void detectComplianceViolations(AIAuditLog auditLog, AuditEventType eventType, 
                                            AuditSeverity severity, DataSensitivity sensitivity) {
-        if (eventType.isPHIEvent() && severity == AuditSeverity.SECURITY_INCIDENT) {
+        if (eventType.isPHIEvent() && severity == AuditSeverity.CRITICAL) {
             ComplianceViolation violation = new ComplianceViolation();
             violation.setViolationType("UNAUTHORIZED_PHI_ACCESS");
             violation.setSeverity(AuditSeverity.CRITICAL);

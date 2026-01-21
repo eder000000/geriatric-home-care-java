@@ -153,32 +153,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     @Query("SELECT u FROM User u WHERE u.createdAt >= :since ORDER BY u.createdAt DESC")
     List<User> findRecentlyCreated(@Param("since") LocalDateTime since);
-    /**
-     * Find active user by ID
-     */
-    default Optional<User> findByIdAndIsActiveTrue(UUID id) {
-        return findById(id).filter(u -> u.getStatus() == UserStatus.ACTIVE && !u.getDeleted());
-    }
-
-    /**
-     * Find active user by email
-     */
-    default Optional<User> findByEmailAndIsActiveTrue(String email) {
-        return findByEmail(email).filter(u -> u.getStatus() == UserStatus.ACTIVE && !u.getDeleted());
-    }
-
-    /**
-     * Check if active user exists by email
-     */
-    default boolean existsByEmailAndIsActiveTrue(String email) {
-        return findByEmailAndIsActiveTrue(email).isPresent();
-    }
-
-    /**
-     * Check if active user exists by role
-     */
-    default boolean existsByRoleAndIsActiveTrue(UserRole role) {
-        return findByRole(role).stream()
-            .anyMatch(u -> u.getStatus() == UserStatus.ACTIVE && !u.getDeleted());
-    }
 }

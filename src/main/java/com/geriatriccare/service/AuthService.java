@@ -4,6 +4,7 @@ import com.geriatriccare.dto.AuthResponse;
 import com.geriatriccare.dto.LoginRequest;
 import com.geriatriccare.dto.RegisterRequest;
 import com.geriatriccare.entity.User;
+import com.geriatriccare.enums.UserStatus;
 import com.geriatriccare.repository.UserRepository;
 import com.geriatriccare.security.JwtUtil;
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ public class AuthService {
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setRole(registerRequest.getRole());
-        user.setIsActive(true);
+        user.setStatus(UserStatus.ACTIVE);
         
         User savedUser = userRepository.save(user);
         logger.info("User registered successfully with ID: {}", savedUser.getId());

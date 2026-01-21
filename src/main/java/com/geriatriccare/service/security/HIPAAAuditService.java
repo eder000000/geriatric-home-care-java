@@ -1,6 +1,13 @@
 package com.geriatriccare.service.security;
 
 import com.geriatriccare.dto.security.*;
+import com.geriatriccare.enums.AuditEventType;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -8,12 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+
+
 
 @Service
 public class HIPAAAuditService {
@@ -332,10 +335,10 @@ public class HIPAAAuditService {
         switch (eventType) {
             case LOGIN_FAILURE:
             case UNAUTHORIZED_ACCESS:
-            case SUSPICIOUS_ACTIVITY:
+            case SECURITY_VIOLATION:
                 return AuditEventSeverity.HIGH;
-            case ACCOUNT_LOCKED:
-            case SESSION_REVOKED:
+            case SESSION_EXPIRED:
+            case MFA_DISABLED:
                 return AuditEventSeverity.MEDIUM;
             case LOGIN_SUCCESS:
             case LOGOUT:

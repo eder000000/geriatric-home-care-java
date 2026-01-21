@@ -3,7 +3,7 @@ package com.geriatriccare.service;
 import com.geriatriccare.entity.*;
 import com.geriatriccare.enums.AuditEventType;
 import com.geriatriccare.enums.AuditSeverity;
-import com.geriatriccare.enums.DataSensitivity;
+import com.geriatriccare.dto.security.DataSensitivity;
 import com.geriatriccare.repository.*;
 import com.geriatriccare.service.security.AuditEnhancementService;
 import lombok.RequiredArgsConstructor;

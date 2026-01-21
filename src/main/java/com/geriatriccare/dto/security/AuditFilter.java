@@ -1,12 +1,15 @@
 package com.geriatriccare.dto.security;
 
+import com.geriatriccare.enums.AuditEventType;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+
+
 public class AuditFilter {
     
-    private List<AuditEventType> eventTypes;
+    private List<com.geriatriccare.enums.AuditEventType> eventTypes;
     private List<AuditEventSeverity> severities;
     private String userId;
     private UUID patientId;
@@ -27,8 +30,8 @@ public class AuditFilter {
     }
     
     // Getters and Setters
-    public List<AuditEventType> getEventTypes() { return eventTypes; }
-    public void setEventTypes(List<AuditEventType> eventTypes) { this.eventTypes = eventTypes; }
+    public List<com.geriatriccare.enums.AuditEventType> getEventTypes() { return eventTypes; }
+    public void setEventTypes(List<com.geriatriccare.enums.AuditEventType> eventTypes) { this.eventTypes = eventTypes; }
     
     public List<AuditEventSeverity> getSeverities() { return severities; }
     public void setSeverities(List<AuditEventSeverity> severities) { this.severities = severities; }

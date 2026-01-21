@@ -1,14 +1,17 @@
 package com.geriatriccare.dto.security;
 
+import com.geriatriccare.enums.AuditEventType;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+
+
 public class AuditEvent {
     
     private UUID eventId;
-    private AuditEventType eventType;
+    private com.geriatriccare.enums.AuditEventType eventType;
     private AuditEventSeverity severity;
     private String userId;
     private String username;
@@ -36,7 +39,7 @@ public class AuditEvent {
     public UUID getEventId() { return eventId; }
     public void setEventId(UUID eventId) { this.eventId = eventId; }
     
-    public AuditEventType getEventType() { return eventType; }
+    public com.geriatriccare.enums.AuditEventType getEventType() { return eventType; }
     public void setEventType(AuditEventType eventType) { this.eventType = eventType; }
     
     public AuditEventSeverity getSeverity() { return severity; }

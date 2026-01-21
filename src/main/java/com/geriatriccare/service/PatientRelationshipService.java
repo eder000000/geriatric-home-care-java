@@ -1,6 +1,7 @@
 package com.geriatriccare.service;
 
 import com.geriatriccare.entity.*;
+import com.geriatriccare.enums.UserRole;
 import com.geriatriccare.repository.PatientCaregiverRepository;
 import com.geriatriccare.repository.PatientFamilyMemberRepository;
 import com.geriatriccare.repository.PatientRepository;
