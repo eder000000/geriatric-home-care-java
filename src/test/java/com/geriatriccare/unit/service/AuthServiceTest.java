@@ -4,7 +4,7 @@ import com.geriatriccare.dto.AuthResponse;
 import com.geriatriccare.dto.LoginRequest;
 import com.geriatriccare.dto.RegisterRequest;
 import com.geriatriccare.entity.User;
-import com.geriatriccare.entity.UserRole;
+import com.geriatriccare.enums.UserRole;
 import com.geriatriccare.repository.UserRepository;
 import com.geriatriccare.security.JwtUtil;
 import com.geriatriccare.service.AuthService;

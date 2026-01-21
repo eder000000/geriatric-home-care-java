@@ -3,7 +3,7 @@ package com.geriatriccare.integration.api;
 import com.geriatriccare.dto.*;
 import com.geriatriccare.entity.CarePlanPriority;
 import com.geriatriccare.entity.CarePlanStatus;
-import com.geriatriccare.entity.UserRole;
+import com.geriatriccare.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ class CarePlanApiTest {
         baseUrl = "http://localhost:" + port + "/api/care-plans";
         
         // Setup: Create owner user and get token
-        ownerToken = registerUser("owner@test.com", "Owner", "User", UserRole.OWNER);
+        ownerToken = registerUser("owner@test.com", "Owner", "User", UserRole.ADMIN);
         
         // Setup: Create caregiver user and get token
         caregiverToken = registerUser("caregiver@test.com", "Caregiver", "User", UserRole.CAREGIVER);

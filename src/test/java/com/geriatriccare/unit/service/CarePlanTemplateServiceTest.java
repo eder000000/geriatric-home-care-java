@@ -3,6 +3,7 @@ package com.geriatriccare.unit.service;
 import com.geriatriccare.builders.PatientTestBuilder;
 import com.geriatriccare.dto.*;
 import com.geriatriccare.entity.*;
+import com.geriatriccare.enums.UserRole;
 import com.geriatriccare.repository.*;
 import com.geriatriccare.service.CarePlanTemplateService;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +64,7 @@ class CarePlanTemplateServiceTest {
         testUser.setEmail("owner@test.com");
         testUser.setFirstName("Test");
         testUser.setLastName("Owner");
-        testUser.setRole(UserRole.OWNER);
+        testUser.setRole(UserRole.ADMIN);
         
         testPatient = PatientTestBuilder.aPatient()
             .withName("John", "Doe")

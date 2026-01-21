@@ -4,7 +4,7 @@ import com.geriatriccare.dto.LoginRequest;
 import com.geriatriccare.dto.AuthResponse;
 import com.geriatriccare.dto.RegisterRequest;
 import com.geriatriccare.entity.User;
-import com.geriatriccare.entity.UserRole;
+import com.geriatriccare.enums.UserRole;
 import com.geriatriccare.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public abstract class BaseIntegrationTest {
         ownerReq.setPassword("TestPass123!");
         ownerReq.setFirstName("Test");
         ownerReq.setLastName("Owner");
-        ownerReq.setRole(UserRole.OWNER);
+        ownerReq.setRole(UserRole.ADMIN);
         
         restTemplate.postForEntity(
             baseUrl + "/api/auth/register",

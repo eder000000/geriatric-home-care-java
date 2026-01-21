@@ -3,7 +3,7 @@ package com.geriatriccare.integration.api;
 import com.geriatriccare.dto.AuthResponse;
 import com.geriatriccare.dto.LoginRequest;
 import com.geriatriccare.dto.RegisterRequest;
-import com.geriatriccare.entity.UserRole;
+import com.geriatriccare.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

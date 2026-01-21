@@ -4,7 +4,7 @@ import com.geriatriccare.dto.PatientRequest;
 import com.geriatriccare.dto.PatientResponse;
 import com.geriatriccare.dto.RegisterRequest;
 import com.geriatriccare.dto.AuthResponse;
-import com.geriatriccare.entity.UserRole;
+import com.geriatriccare.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ class PatientApiTest {
         registerRequest.setPassword("Password123!");
         registerRequest.setFirstName("Test");
         registerRequest.setLastName("Owner");
-        registerRequest.setRole(UserRole.OWNER);
+        registerRequest.setRole(UserRole.ADMIN);
 
         ResponseEntity<AuthResponse> registerResponse = restTemplate.postForEntity(
             "http://localhost:" + port + "/api/auth/register",

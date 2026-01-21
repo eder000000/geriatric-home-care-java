@@ -6,6 +6,7 @@ import com.geriatriccare.dto.CarePlanRequest;
 import com.geriatriccare.dto.CarePlanResponse;
 import com.geriatriccare.dto.CarePlanUpdateRequest;
 import com.geriatriccare.entity.*;
+import com.geriatriccare.enums.UserRole;
 import com.geriatriccare.repository.CarePlanRepository;
 import com.geriatriccare.repository.PatientRepository;
 import com.geriatriccare.repository.UserRepository;
@@ -80,7 +81,7 @@ class CarePlanServiceTest {
         testOwner.setEmail("owner@test.com");
         testOwner.setFirstName("Test");
         testOwner.setLastName("Owner");
-        testOwner.setRole(UserRole.OWNER);
+        testOwner.setRole(UserRole.ADMIN);
         
         testCaregiver = new User();
         testCaregiver.setId(UUID.randomUUID());

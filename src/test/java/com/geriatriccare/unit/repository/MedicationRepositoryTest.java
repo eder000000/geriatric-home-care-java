@@ -3,7 +3,7 @@ package com.geriatriccare.unit.repository;
 import com.geriatriccare.entity.Medication;
 import com.geriatriccare.entity.MedicationForm;
 import com.geriatriccare.entity.User;
-import com.geriatriccare.entity.UserRole;
+import com.geriatriccare.enums.UserRole;
 import com.geriatriccare.repository.MedicationRepository;
 import com.geriatriccare.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +45,7 @@ class MedicationRepositoryTest {
         testUser.setPassword("password");
         testUser.setFirstName("Test");
         testUser.setLastName("User");
-        testUser.setRole(UserRole.OWNER);
+        testUser.setRole(UserRole.ADMIN);
         testUser.setCreatedAt(LocalDateTime.now());  
         testUser.setUpdatedAt(LocalDateTime.now()); 
         testUser = userRepository.save(testUser);
