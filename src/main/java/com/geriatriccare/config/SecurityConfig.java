@@ -86,3 +86,17 @@ public class SecurityConfig {
         return source;
     }
 }
+// ============================================================================
+// RBAC CONFIGURATION (Sprint 6)
+// ============================================================================
+
+/**
+ * Enable method-level security with @PreAuthorize
+ * Already enabled in existing configuration
+ */
+
+// Permission-based authorization is now available via:
+// - @PreAuthorize("@securityUtil.hasPermission('PATIENT_READ')")
+// - @PreAuthorize("@securityUtil.canAccessPatient(#patientId)")
+// - @PreAuthorize("hasRole('ADMIN') or @securityUtil.isAdmin()")
+
