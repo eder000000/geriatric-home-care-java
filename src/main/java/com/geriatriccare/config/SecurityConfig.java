@@ -43,6 +43,13 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/info").permitAll()
                 
+                // Swagger/OpenAPI Documentation
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/swagger-ui.html").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
+                .requestMatchers("/swagger-resources/**").permitAll()
+                .requestMatchers("/webjars/**").permitAll()
+                
                 // Secured endpoints
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/patients/**").hasAnyRole("ADMIN", "CAREGIVER", "OWNER")
@@ -85,4 +92,3 @@ public class SecurityConfig {
 // - @PreAuthorize("@securityUtil.hasPermission('PATIENT_READ')")
 // - @PreAuthorize("@securityUtil.canAccessPatient(#patientId)")
 // - @PreAuthorize("hasRole('ADMIN') or @securityUtil.isAdmin()")
-

@@ -51,6 +51,7 @@ public class DataInitializationService implements ApplicationRunner {
             logger.info("No OWNER user found. Creating default owner user...");
             
             User owner = new User();
+            owner.setUsername("admin");
             owner.setFirstName(defaultOwnerFirstName);
             owner.setLastName(defaultOwnerLastName);
             owner.setEmail(defaultOwnerEmail);
