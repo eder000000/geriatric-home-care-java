@@ -21,6 +21,8 @@ public class UserPrincipal implements UserDetails {
     private final String email;
     private final String password;
     private final String role;
+    private final String firstName;
+    private final String lastName;
     private final boolean active;
     private final boolean accountNonExpired;
     private final boolean accountNonLocked;
@@ -33,6 +35,8 @@ public class UserPrincipal implements UserDetails {
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.role = "ROLE_" + user.getRole().name();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
         this.active = user.getStatus() == UserStatus.ACTIVE && !user.getDeleted();
         this.accountNonExpired = true;
         this.accountNonLocked = !user.isLocked();
@@ -49,11 +53,11 @@ public class UserPrincipal implements UserDetails {
     }
 
     public String getFirstName() {
-        return username; // Username is used as display name
+        return firstName;
     }
 
     public String getLastName() {
-        return ""; // Not stored in UserPrincipal
+        return lastName;
     }
 
     @Override
@@ -89,5 +93,10 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public Object getRole() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getRole'");
     }
 }

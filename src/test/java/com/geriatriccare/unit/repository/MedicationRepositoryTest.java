@@ -42,6 +42,7 @@ class MedicationRepositoryTest {
         // Create test user
         testUser = new User();
         testUser.setEmail("test@example.com");
+        testUser.setUsername("testuser");
         testUser.setPassword("password");
         testUser.setFirstName("Test");
         testUser.setLastName("User");

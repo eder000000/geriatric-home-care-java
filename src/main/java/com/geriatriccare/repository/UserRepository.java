@@ -168,6 +168,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     }
 
     /**
+     * Find active user by username
+     */
+    default Optional<User> findByUsernameAndIsActiveTrue(String username) {
+        return findByUsername(username).filter(u -> u.getStatus() == UserStatus.ACTIVE && !u.getDeleted());
+    }
+
+    /**
      * Check if active user exists by email
      */
     default boolean existsByEmailAndIsActiveTrue(String email) {
