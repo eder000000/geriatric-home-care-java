@@ -35,6 +35,25 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers
                 .frameOptions(frame -> frame.sameOrigin()) // Allow H2 console frames
+                // Content Security Policy
+                .contentSecurityPolicy(csp -> csp
+                    .policyDirectives(
+                        "default-src 'self'; " +
+                        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; " +
+                        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+                        "img-src 'self' data: https:; " +
+                        "font-src 'self' data: https://cdnjs.cloudflare.com; " +
+                        "connect-src 'self' https://api.anthropic.com; " +
+                        "frame-ancestors 'self'; " +
+                        "base-uri 'self'; " +
+                        "form-action 'self'"
+                    )
+                )
+                // Strict-Transport-Security
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .maxAgeInSeconds(31536000)
+                    .includeSubDomains(true)
+                )
             )
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints
@@ -52,9 +71,11 @@ public class SecurityConfig {
                 
                 // Secured endpoints
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/patients/**").hasAnyRole("ADMIN", "CAREGIVER", "OWNER")
-                .requestMatchers("/api/medications/**").hasAnyRole("ADMIN", "CAREGIVER", "OWNER")
-                .requestMatchers("/api/careplans/**").hasAnyRole("ADMIN", "CAREGIVER", "OWNER")
+                .requestMatchers("/api/patients/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER", "FAMILY")
+                .requestMatchers("/api/medications/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER")
+                .requestMatchers("/api/care-plans/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER", "FAMILY")
+                .requestMatchers("/api/care-tasks/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER")
+                .requestMatchers("/api/care-plan-templates/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER")
                 
                 // All other requests require authentication
                 .anyRequest().authenticated()

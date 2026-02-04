@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+app:
+  jwt:
+    secret: dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5Zm9ySldUdG9rZW5nZW5lcmF0aW9udGhhdGlzbG9uZ2VydGhhbjUxMmJpdHNmb3JIUzUxMmFsZ29yaXRobQ==
+    expiration: 86400
+
+# Also add legacy path for compatibility
+jwt:
+  secret: dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5Zm9ySldUdG9rZW5nZW5lcmF0aW9udGhhdGlzbG9uZ2VydGhhbjUxMmJpdHNmb3JIUzUxMmFsZ29yaXRobQ==
+  expiration: 86400000
+
+openai:
+  api:
+    enabled: false
+
+logging:
+  level:
+    com.geriatriccare: DEBUG

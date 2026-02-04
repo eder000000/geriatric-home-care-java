@@ -95,8 +95,7 @@ public class UserPrincipal implements UserDetails {
         return enabled;
     }
 
-    public Object getRole() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRole'");
+    public String getRole() {
+        return role;
     }
 }

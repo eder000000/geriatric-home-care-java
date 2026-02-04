@@ -33,7 +33,7 @@ public class PatientController {
      * Only OWNER, ADMIN, MANAGER, and CAREGIVER can create patients
      */
     @PostMapping
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<PatientResponse> createPatient(@Valid @RequestBody PatientRequest request) {
         logger.info("Creating new patient: {} {}", request.getFirstName(), request.getLastName());
         
@@ -51,7 +51,7 @@ public class PatientController {
      * All authenticated users can view patients
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER') or hasRole('FAMILY')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER') or hasRole('FAMILY')")
     public ResponseEntity<PatientResponse> getPatient(@PathVariable UUID id) {
         logger.info("Fetching patient: {}", id);
         
@@ -65,7 +65,7 @@ public class PatientController {
      * OWNER, ADMIN, MANAGER can see all patients
      */
     @GetMapping
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN')")
     public ResponseEntity<Page<PatientResponse>> getAllPatients(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -84,7 +84,7 @@ public class PatientController {
      * Only OWNER, ADMIN, MANAGER, and assigned CAREGIVER can update
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<PatientResponse> updatePatient(
             @PathVariable UUID id, 
             @Valid @RequestBody PatientRequest request) {
@@ -105,7 +105,7 @@ public class PatientController {
      * Only OWNER and ADMIN can delete patients
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePatient(@PathVariable UUID id) {
         logger.info("Deleting patient: {}", id);
         
@@ -124,7 +124,7 @@ public class PatientController {
      * Search patients by name
      */
     @GetMapping("/search/name")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<List<PatientResponse>> searchByName(@RequestParam String name) {
         logger.info("Searching patients by name: {}", name);
         
@@ -136,7 +136,7 @@ public class PatientController {
      * Search patients by age range
      */
     @GetMapping("/search/age")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<List<PatientResponse>> searchByAge(
             @RequestParam int minAge, 
             @RequestParam int maxAge) {
@@ -151,7 +151,7 @@ public class PatientController {
      * Search patients by medical condition
      */
     @GetMapping("/search/condition")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<List<PatientResponse>> searchByCondition(@RequestParam String condition) {
         logger.info("Searching patients by medical condition: {}", condition);
         
@@ -165,7 +165,7 @@ public class PatientController {
      * Get total count of active patients
      */
     @GetMapping("/count")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN')")
     public ResponseEntity<Long> getTotalPatients() {
         logger.info("Fetching total patient count");
         
@@ -177,7 +177,7 @@ public class PatientController {
      * Check if patient exists
      */
     @GetMapping("/{id}/exists")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<Boolean> patientExists(@PathVariable UUID id) {
         logger.info("Checking if patient exists: {}", id);
         

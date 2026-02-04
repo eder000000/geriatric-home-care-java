@@ -49,9 +49,13 @@ public class AuthService {
         if (userRepository.existsByEmailAndIsActiveTrue(registerRequest.getEmail())) {
             throw new RuntimeException("Email address already in use!");
         }
-        
+
+        // Generate username from email (part before @)
+        String username = generateUniqueUsername(registerRequest.getEmail());
+
         // Create new user
         User user = new User();
+        user.setUsername(username);
         user.setFirstName(registerRequest.getFirstName());
         user.setLastName(registerRequest.getLastName());
         user.setEmail(registerRequest.getEmail());
@@ -151,5 +155,21 @@ public User validateToken(String token) {
      */
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmailAndIsActiveTrue(email);
+    }
+
+    /**
+     * Generate a unique username from email
+     */
+    private String generateUniqueUsername(String email) {
+        String baseUsername = email.split("@")[0];
+        String username = baseUsername;
+        int counter = 1;
+
+        while (userRepository.existsByUsername(username)) {
+            username = baseUsername + counter;
+            counter++;
+        }
+
+        return username;
     }
 }

@@ -89,6 +89,11 @@ public class OpenAIService {
             
             return response;
             
+        } catch (AIServiceException e) {
+            // Re-throw specific AI exceptions directly (includes subclasses)
+            log.error("Error calling OpenAI API", e);
+            auditLogService.logAIError(prompt, e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("Error calling OpenAI API", e);
             auditLogService.logAIError(prompt, e.getMessage());

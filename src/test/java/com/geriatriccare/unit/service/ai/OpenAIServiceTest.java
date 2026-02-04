@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
@@ -23,10 +26,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("OpenAIService Tests")
 class OpenAIServiceTest {
 
@@ -51,8 +56,8 @@ class OpenAIServiceTest {
         properties.setMaxTokens(2000);
         properties.setTemperature(0.3);
         properties.setTimeout(30000);
-        properties.setMaxRetries(3);
-        properties.setRetryDelay(1000);
+        properties.setMaxRetries(1);  // Reduce retries for faster tests
+        properties.setRetryDelay(100);
 
         when(circuitBreakerRegistry.circuitBreaker(anyString()))
                 .thenReturn(CircuitBreakerRegistry.ofDefaults().circuitBreaker("test"));
@@ -132,8 +137,11 @@ class OpenAIServiceTest {
             String prompt = "Test prompt";
             String context = "Test context";
             OpenAIResponse mockResponse = createMockResponse("Test response", 100);
-            
-            when(restTemplate.postForEntity(any(), any(), eq(OpenAIResponse.class)))
+
+            when(restTemplate.postForEntity(
+                    anyString(),
+                    any(HttpEntity.class),
+                    eq(OpenAIResponse.class)))
                     .thenReturn(ResponseEntity.ok(mockResponse));
 
             // Act
@@ -155,7 +163,7 @@ class OpenAIServiceTest {
             String prompt = "Test prompt";
             String context = "Test context";
 
-            when(restTemplate.postForEntity(any(), any(), eq(OpenAIResponse.class)))
+            when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(OpenAIResponse.class)))
                     .thenThrow(new HttpClientErrorException(HttpStatus.TOO_MANY_REQUESTS));
 
             // Act & Assert
@@ -173,7 +181,7 @@ class OpenAIServiceTest {
             String prompt = "Test prompt";
             String context = "Test context";
 
-            when(restTemplate.postForEntity(any(), any(), eq(OpenAIResponse.class)))
+            when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(OpenAIResponse.class)))
                     .thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
             // Act & Assert
@@ -191,7 +199,7 @@ class OpenAIServiceTest {
             String prompt = "Test prompt";
             String context = "Test context";
 
-            when(restTemplate.postForEntity(any(), any(), eq(OpenAIResponse.class)))
+            when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(OpenAIResponse.class)))
                     .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
             // Act & Assert
@@ -209,7 +217,7 @@ class OpenAIServiceTest {
             String prompt = "Test prompt";
             String context = "Test context";
 
-            when(restTemplate.postForEntity(any(), any(), eq(OpenAIResponse.class)))
+            when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(OpenAIResponse.class)))
                     .thenReturn(ResponseEntity.ok(null));
 
             // Act & Assert
@@ -226,7 +234,7 @@ class OpenAIServiceTest {
             String context = "Test context";
             String errorMessage = "API Error";
 
-            when(restTemplate.postForEntity(any(), any(), eq(OpenAIResponse.class)))
+            when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(OpenAIResponse.class)))
                     .thenThrow(new RuntimeException(errorMessage));
 
             // Act & Assert

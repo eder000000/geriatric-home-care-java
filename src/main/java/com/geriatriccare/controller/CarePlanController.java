@@ -34,7 +34,7 @@ public class CarePlanController {
      * Only OWNER, ADMIN, MANAGER, and CAREGIVER can create care plans
      */
     @PostMapping
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<CarePlanResponse> createCarePlan(@Valid @RequestBody CarePlanRequest request) {
         logger.info("Creating care plan: {} for patient: {}", request.getTitle(), request.getPatientId());
         
@@ -52,7 +52,7 @@ public class CarePlanController {
      * All authenticated users can view care plans (with proper filtering by service)
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER') or hasRole('FAMILY')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER') or hasRole('FAMILY')")
     public ResponseEntity<CarePlanResponse> getCarePlan(@PathVariable UUID id) {
         logger.info("Fetching care plan: {}", id);
         
@@ -66,7 +66,7 @@ public class CarePlanController {
      * OWNER, ADMIN, MANAGER can see all; CAREGIVER sees assigned; FAMILY sees patient's
      */
     @GetMapping
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER') or hasRole('FAMILY')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER') or hasRole('FAMILY')")
     public ResponseEntity<Page<CarePlanResponse>> getAllCarePlans(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -87,7 +87,7 @@ public class CarePlanController {
      * Only OWNER, ADMIN, MANAGER, and assigned CAREGIVER can update
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<CarePlanResponse> updateCarePlan(
             @PathVariable UUID id, 
             @Valid @RequestBody CarePlanUpdateRequest request) {
@@ -108,7 +108,7 @@ public class CarePlanController {
      * Only OWNER and ADMIN can delete care plans
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCarePlan(@PathVariable UUID id) {
         logger.info("Deleting care plan: {}", id);
         
@@ -127,7 +127,7 @@ public class CarePlanController {
      * Activate care plan
      */
     @PutMapping("/{id}/activate")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<Void> activateCarePlan(@PathVariable UUID id) {
         logger.info("Activating care plan: {}", id);
         
@@ -144,7 +144,7 @@ public class CarePlanController {
      * Suspend care plan
      */
     @PutMapping("/{id}/suspend")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<Void> suspendCarePlan(@PathVariable UUID id) {
         logger.info("Suspending care plan: {}", id);
         
@@ -161,7 +161,7 @@ public class CarePlanController {
      * Complete care plan
      */
     @PutMapping("/{id}/complete")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<Void> completeCarePlan(@PathVariable UUID id) {
         logger.info("Completing care plan: {}", id);
         
@@ -180,7 +180,7 @@ public class CarePlanController {
      * Check if care plan exists
      */
     @GetMapping("/{id}/exists")
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MANAGER') or hasRole('CAREGIVER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PHYSICIAN') or hasRole('CAREGIVER')")
     public ResponseEntity<Boolean> carePlanExists(@PathVariable UUID id) {
         logger.info("Checking if care plan exists: {}", id);
         
