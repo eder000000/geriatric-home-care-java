@@ -18,11 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * ReportController
- * REST API for care plan adherence reports
- * Sprint 8 - US-7.1 (GCARE-713)
- */
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
@@ -73,5 +68,29 @@ public class ReportController {
             @RequestParam(defaultValue = "30") int days) {
         log.info("GET /api/reports/patient/{}/statistics?days={}", patientId, days);
         return ResponseEntity.ok(reportService.getAdherenceStatistics(patientId, days));
+    }
+
+    @GetMapping("/{reportId}/export/pdf")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PHYSICIAN', 'CAREGIVER')")
+    public ResponseEntity<byte[]> exportReportAsPdf(@PathVariable UUID reportId) {
+        log.info("GET /api/reports/{}/export/pdf", reportId);
+        byte[] pdfData = reportService.exportReportAsPdf(reportId);
+        
+        return ResponseEntity.ok()
+            .header("Content-Type", "application/pdf")
+            .header("Content-Disposition", "attachment; filename=adherence-report-" + reportId + ".pdf")
+            .body(pdfData);
+    }
+
+    @GetMapping("/{reportId}/export/csv")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PHYSICIAN', 'CAREGIVER')")
+    public ResponseEntity<byte[]> exportReportAsCsv(@PathVariable UUID reportId) {
+        log.info("GET /api/reports/{}/export/csv", reportId);
+        byte[] csvData = reportService.exportReportAsCsv(reportId);
+        
+        return ResponseEntity.ok()
+            .header("Content-Type", "text/csv")
+            .header("Content-Disposition", "attachment; filename=adherence-report-" + reportId + ".csv")
+            .body(csvData);
     }
 }

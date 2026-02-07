@@ -14,6 +14,8 @@ import com.geriatriccare.repository.CarePlanRepository;
 import com.geriatriccare.repository.CareTaskRepository;
 import com.geriatriccare.repository.PatientRepository;
 import com.geriatriccare.util.SecurityUtil;
+import com.geriatriccare.util.PdfGenerator;
+import com.geriatriccare.util.CsvExporter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,8 @@ public class AdherenceReportService {
     private final CarePlanRepository carePlanRepository;
     private final PatientRepository patientRepository;
     private final SecurityUtil securityUtil;
+    private final PdfGenerator pdfGenerator;
+    private final CsvExporter csvExporter;
 
     @Transactional
     public AdherenceReportResponse generateReport(AdherenceReportRequest request) {
@@ -48,14 +52,12 @@ public class AdherenceReportService {
         LocalDateTime startDate = dateRange[0];
         LocalDateTime endDate = dateRange[1];
 
-        // Get care plans using paginated method
         Page<CarePlan> carePlansPage = carePlanRepository.findByPatientIdAndIsActiveTrue(
             request.getPatientId(), 
             PageRequest.of(0, 100)
         );
         List<CarePlan> carePlans = carePlansPage.getContent();
 
-        // Get all care tasks
         List<CareTask> allTasks = new ArrayList<>();
         for (CarePlan plan : carePlans) {
             List<CareTask> planTasks = careTaskRepository.findByCarePlanIdAndIsActiveTrue(plan.getId());
@@ -148,6 +150,20 @@ public class AdherenceReportService {
             .trend(metrics.getTrend())
             .atRisk(metrics.getAdherencePercentage() < 70.0)
             .build();
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] exportReportAsPdf(UUID reportId) {
+        log.info("Exporting report {} as PDF", reportId);
+        AdherenceReportResponse report = getReport(reportId);
+        return pdfGenerator.generateAdherenceReportPdf(report);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] exportReportAsCsv(UUID reportId) {
+        log.info("Exporting report {} as CSV", reportId);
+        AdherenceReportResponse report = getReport(reportId);
+        return csvExporter.generateAdherenceReportCsv(report);
     }
 
     private LocalDateTime[] calculateDateRange(AdherenceReportRequest request) {
