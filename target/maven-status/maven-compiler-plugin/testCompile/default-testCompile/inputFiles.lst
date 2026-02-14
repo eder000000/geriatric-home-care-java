@@ -7,6 +7,7 @@
 /workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/unit/service/PatientServiceTest.java
 /workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/unit/service/MedicationServiceTest.java
 /workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/unit/service/DrugInteractionServiceTest.java
+/workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/integration/TestDataFactory.java
 /workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/unit/service/CarePlanTemplateServiceTest.java
 /workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/base/BaseClassVerificationTest.java
 /workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/builders/MedicationTestBuilder.java
@@ -40,3 +41,4 @@
 /workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/unit/dto/MedicationResponseTest.java
 /workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/unit/service/AuthServiceTest.java
 /workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/base/BaseServiceTest.java
+/workspaces/geriatric-home-care-java/src/test/java/com/geriatriccare/integration/CarePlanIntegrationTest.java
