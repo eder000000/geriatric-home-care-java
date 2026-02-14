@@ -8,12 +8,20 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
-    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        format_sql: false
   h2:
     console:
       enabled: false
-
 app:
   jwt:
-    secret: dGVzdFNlY3JldEtleUZvclRlc3RpbmdQdXJwb3Nlc09ubHk=
-    expiration: 3600
+    secret: bXlTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25UaGF0SXNTZWN1cmVFbm91Z2hGb3JITUFDMjU2QWxnb3JpdGht
+    expiration: 86400
+logging:
+  level:
+    root: WARN
+    com.geriatriccare: DEBUG
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.hibernate: WARN

@@ -1,0 +1,48 @@
+-------------------------------------------------------------------------------
+Test set: com.geriatriccare.integration.VitalSignsIntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 4, Errors: 0, Skipped: 0, Time elapsed: 0.240 s <<< FAILURE! -- in com.geriatriccare.integration.VitalSignsIntegrationTest
+com.geriatriccare.integration.VitalSignsIntegrationTest.recordVitalSigns_Normal -- Time elapsed: 0.073 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.geriatriccare.integration.VitalSignsIntegrationTest.recordVitalSigns_Normal(VitalSignsIntegrationTest.java:68)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.geriatriccare.integration.VitalSignsIntegrationTest.getPatientVitalSigns_Success -- Time elapsed: 0.029 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.geriatriccare.integration.VitalSignsIntegrationTest.getPatientVitalSigns_Success(VitalSignsIntegrationTest.java:148)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.geriatriccare.integration.VitalSignsIntegrationTest.recordVitalSigns_VeryHighBP_Critical -- Time elapsed: 0.030 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.geriatriccare.integration.VitalSignsIntegrationTest.recordVitalSigns_VeryHighBP_Critical(VitalSignsIntegrationTest.java:118)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.geriatriccare.integration.VitalSignsIntegrationTest.recordVitalSigns_HighBP_TriggersAlert -- Time elapsed: 0.037 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.geriatriccare.integration.VitalSignsIntegrationTest.recordVitalSigns_HighBP_TriggersAlert(VitalSignsIntegrationTest.java:92)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
