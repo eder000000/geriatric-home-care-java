@@ -14,10 +14,11 @@ spring:
   h2:
     console:
       enabled: false
-app:
-  jwt:
-    secret: bXlTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25UaGF0SXNTZWN1cmVFbm91Z2hGb3JITUFDMjU2QWxnb3JpdGht
-    expiration: 86400
+
+jwt:
+  secret: bXlTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25UaGF0SXNTZWN1cmVFbm91Z2hGb3JITUFDMjU2QWxnb3JpdGht
+  expiration: 86400000
+
 logging:
   level:
     root: WARN

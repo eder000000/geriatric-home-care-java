@@ -4,6 +4,8 @@ com/geriatriccare/service/VitalSignServiceSmokeTest.class
 com/geriatriccare/unit/service/MedicationInventoryServiceTest.class
 com/geriatriccare/builders/CarePlanTestBuilder.class
 com/geriatriccare/unit/service/MedicationDosageServiceTest$HepaticFunctionAdjustmentTests.class
+com/geriatriccare/integration/api/MedicationApiTest.class
+com/geriatriccare/integration/api/DashboardApiTest.class
 com/geriatriccare/builders/MedicationTestBuilder.class
 com/geriatriccare/unit/service/PatientServiceTest.class
 com/geriatriccare/builders/MedicationTestBuilderTest.class
@@ -15,6 +17,7 @@ com/geriatriccare/unit/service/DrugInteractionServiceTest$EdgeCaseTests.class
 com/geriatriccare/unit/service/DrugInteractionServiceTest$SeverityTests.class
 com/geriatriccare/unit/service/CarePlanServiceTest.class
 com/geriatriccare/unit/service/ai/OpenAIServiceTest.class
+com/geriatriccare/integration/api/AlertApiTest.class
 com/geriatriccare/unit/entity/MedicationTest.class
 com/geriatriccare/unit/service/MedicationInventoryServiceTest$RemoveStockTests.class
 com/geriatriccare/service/AlertServiceTest.class
@@ -24,6 +27,7 @@ com/geriatriccare/unit/entity/MedicationFormTest.class
 com/geriatriccare/unit/service/CarePlanTemplateServiceTest.class
 com/geriatriccare/integration/api/AuthApiTest.class
 com/geriatriccare/unit/service/MedicationServiceTest$UpdateMedicationTests.class
+com/geriatriccare/integration/api/PatientApiTest.class
 com/geriatriccare/integration/api/CarePlanApiTest.class
 com/geriatriccare/config/CacheConfigTest.class
 com/geriatriccare/unit/service/ai/OpenAIServiceTest$ServiceAvailabilityTests.class
@@ -33,6 +37,7 @@ com/geriatriccare/base/BaseIntegrationTest.class
 com/geriatriccare/base/BaseServiceTest.class
 com/geriatriccare/service/AdherenceReportServiceTest.class
 com/geriatriccare/config/TestConfigurationVerification.class
+com/geriatriccare/integration/api/VitalSignApiTest.class
 com/geriatriccare/base/BaseIntegrationVerificationTest.class
 com/geriatriccare/unit/service/DrugInteractionServiceTest$PatientReviewTests.class
 com/geriatriccare/integration/PatientIntegrationTest.class
@@ -60,6 +65,7 @@ com/geriatriccare/unit/service/MedicationServiceTest$ReadMedicationTests.class
 com/geriatriccare/unit/service/AuthServiceTest.class
 com/geriatriccare/unit/dto/MedicationRequestTest.class
 com/geriatriccare/unit/service/ai/OpenAIServiceTest$ErrorHandlingTests.class
+com/geriatriccare/base/BaseIntegrationTest$1.class
 com/geriatriccare/unit/service/MedicationServiceTest.class
 com/geriatriccare/base/IntegrationTestImpl.class
 com/geriatriccare/builders/PatientTestBuilder.class

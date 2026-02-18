@@ -1,5 +1,6 @@
 package com.geriatriccare.config;
 
+import com.geriatriccare.security.JwtAuthenticationEntryPoint;
 import com.geriatriccare.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +23,14 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CorsConfigurationSource corsConfigurationSource;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, 
-                         CorsConfigurationSource corsConfigurationSource) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                         CorsConfigurationSource corsConfigurationSource,
+                         JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfigurationSource = corsConfigurationSource;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
     @Bean
@@ -34,8 +38,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers
-                .frameOptions(frame -> frame.sameOrigin()) // Allow H2 console frames
-                // Content Security Policy
+                .frameOptions(frame -> frame.sameOrigin())
                 .contentSecurityPolicy(csp -> csp
                     .policyDirectives(
                         "default-src 'self'; " +
@@ -49,39 +52,34 @@ public class SecurityConfig {
                         "form-action 'self'"
                     )
                 )
-                // Strict-Transport-Security
                 .httpStrictTransportSecurity(hsts -> hsts
                     .maxAgeInSeconds(31536000)
                     .includeSubDomains(true)
                 )
             )
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/h2-console/**").permitAll() // Allow H2 console
+                .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/info").permitAll()
-                
-                // Swagger/OpenAPI Documentation
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-ui.html").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers("/swagger-resources/**").permitAll()
                 .requestMatchers("/webjars/**").permitAll()
-                
-                // Secured endpoints
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/patients/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER", "FAMILY")
                 .requestMatchers("/api/medications/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER")
                 .requestMatchers("/api/care-plans/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER", "FAMILY")
                 .requestMatchers("/api/care-tasks/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER")
                 .requestMatchers("/api/care-plan-templates/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER")
-                
-                // All other requests require authentication
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
             )
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -100,16 +98,3 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
-// ============================================================================
-// RBAC CONFIGURATION (Sprint 6)
-// ============================================================================
-
-/**
- * Enable method-level security with @PreAuthorize
- * Already enabled in existing configuration
- */
-
-// Permission-based authorization is now available via:
-// - @PreAuthorize("@securityUtil.hasPermission('PATIENT_READ')")
-// - @PreAuthorize("@securityUtil.canAccessPatient(#patientId)")
-// - @PreAuthorize("hasRole('ADMIN') or @securityUtil.isAdmin()")

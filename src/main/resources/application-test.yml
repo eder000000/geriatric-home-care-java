@@ -9,13 +9,8 @@ spring:
 
 app:
   jwt:
-    secret: dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5Zm9ySldUdG9rZW5nZW5lcmF0aW9udGhhdGlzbG9uZ2VydGhhbjUxMmJpdHNmb3JIUzUxMmFsZ29yaXRobQ==
+    secret: bXlTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25UaGF0SXNTZWN1cmVFbm91Z2hGb3JITUFDMjU2QWxnb3JpdGht
     expiration: 86400
-
-# Also add legacy path for compatibility
-jwt:
-  secret: dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5Zm9ySldUdG9rZW5nZW5lcmF0aW9udGhhdGlzbG9uZ2VydGhhbjUxMmJpdHNmb3JIUzUxMmFsZ29yaXRobQ==
-  expiration: 86400000
 
 openai:
   api:
