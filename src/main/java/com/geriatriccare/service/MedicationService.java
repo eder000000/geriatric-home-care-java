@@ -9,6 +9,7 @@ import com.geriatriccare.dto.MedicationResponse;
 import com.geriatriccare.entity.DrugInteraction;
 import com.geriatriccare.entity.Medication;
 import com.geriatriccare.entity.MedicationForm;
+import com.geriatriccare.entity.User;
 import com.geriatriccare.repository.DrugInteractionRepository;
 import com.geriatriccare.repository.MedicationRepository;
 import org.springframework.stereotype.Service;
@@ -32,10 +33,16 @@ public class MedicationService {
     }
 
     public MedicationResponse createMedication(MedicationRequest request) {
+        return createMedication(request, null);
+    }
+
+    public MedicationResponse createMedication(MedicationRequest request, User currentUser) {
         validateRequest(request);
         Medication medication = new Medication();
         mapRequestToEntity(request, medication);
         medication.setActive(true);
+        medication.setCreatedBy(currentUser);
+        medication.setUpdatedBy(currentUser);
         Medication saved = medicationRepository.save(medication);
         return mapEntityToResponse(saved);
     }
@@ -54,10 +61,15 @@ public class MedicationService {
     }
 
     public MedicationResponse updateMedication(UUID id, MedicationRequest request) {
+        return updateMedication(id, request, null);
+    }
+
+    public MedicationResponse updateMedication(UUID id, MedicationRequest request, User currentUser) {
         validateRequest(request);
         Medication medication = medicationRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
         mapRequestToEntity(request, medication);
+        if (currentUser != null) medication.setUpdatedBy(currentUser);
         Medication updated = medicationRepository.save(medication);
         return mapEntityToResponse(updated);
     }
@@ -136,20 +148,7 @@ public class MedicationService {
     }
 
     private MedicationResponse mapEntityToResponse(Medication medication) {
-        MedicationResponse response = new MedicationResponse();
-        response.setId(medication.getId());
-        response.setName(medication.getName());
-        response.setGenericName(medication.getGenericName());
-        response.setDosage(medication.getDosage());
-        response.setForm(medication.getForm());
-        response.setManufacturer(medication.getManufacturer());
-        response.setExpirationDate(medication.getExpirationDate());
-        response.setQuantityInStock(medication.getQuantityInStock());
-        response.setReorderLevel(medication.getReorderLevel());
-        response.setActive(medication.isActive());
-        response.setCreatedAt(medication.getCreatedAt());
-        response.setUpdatedAt(medication.getUpdatedAt());
-        return response;
+        return MedicationResponse.fromEntity(medication);
     }
 
     private void validateRequest(MedicationRequest request) {

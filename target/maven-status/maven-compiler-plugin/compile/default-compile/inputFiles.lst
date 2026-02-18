@@ -106,6 +106,7 @@
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/entity/CareTaskPriority.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/service/VitalSignService.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/service/CarePlanService.java
+/workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/controller/MedicationController.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/service/ai/AIAnalyticsService.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/controller/CatalogController.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/security/JwtAuthenticationEntryPoint.java

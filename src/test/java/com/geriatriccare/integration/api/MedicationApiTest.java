@@ -23,14 +23,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * TO ENABLE: Create MedicationController at /api/medications, then remove @Disabled.
  */
-@DisplayName("Medication API Integration Tests [PENDING MedicationController]")
+@DisplayName("Medication API Integration Tests")
 class MedicationApiTest extends BaseIntegrationTest {
 
     @Test
-    @DisplayName("GET /api/medications → 403 as ADMIN (role passes, no handler registered)")
-    void medicationEndpoint_asAdmin_returns403() {
+    @DisplayName("GET /api/medications → 200 as ADMIN")
+    void medicationEndpoint_asAdmin_returns200() {
         assertThat(getWithAuth("/api/medications", adminToken, String.class)
-            .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            .getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
@@ -41,7 +41,6 @@ class MedicationApiTest extends BaseIntegrationTest {
     }
 
     @Test
-    @Disabled("Awaiting MedicationController at /api/medications")
     @DisplayName("POST /api/medications → 201 as ADMIN")
     void createMedication_asAdmin_returns201() {
         ResponseEntity<MedicationResponse> response = postWithAuth(
@@ -51,7 +50,6 @@ class MedicationApiTest extends BaseIntegrationTest {
     }
 
     @Test
-    @Disabled("Awaiting MedicationController")
     @DisplayName("POST /api/medications → 403 as FAMILY")
     void createMedication_asFamily_returns403() {
         assertThat(postWithAuth("/api/medications", buildRequest("Blocked"), familyToken, String.class)
@@ -59,7 +57,6 @@ class MedicationApiTest extends BaseIntegrationTest {
     }
 
     @Test
-    @Disabled("Awaiting MedicationController")
     @DisplayName("POST /api/medications → 400 when expirationDate is in the past")
     void createMedication_pastExpiration_returns400() {
         MedicationRequest req = buildRequest("Expired");
@@ -69,7 +66,6 @@ class MedicationApiTest extends BaseIntegrationTest {
     }
 
     @Test
-    @Disabled("Awaiting MedicationController")
     @DisplayName("POST /api/medications → 400 when quantityInStock is negative")
     void createMedication_negativeQuantity_returns400() {
         MedicationRequest req = buildRequest("BadQty");
@@ -79,7 +75,6 @@ class MedicationApiTest extends BaseIntegrationTest {
     }
 
     @Test
-    @Disabled("Awaiting MedicationController")
     @DisplayName("POST /api/medications → isLowStock=true when quantity <= reorderLevel")
     void createMedication_atReorderLevel_isLowStockTrue() {
         MedicationRequest req = buildRequest("LowStock");
@@ -92,7 +87,6 @@ class MedicationApiTest extends BaseIntegrationTest {
     }
 
     @Test
-    @Disabled("Awaiting MedicationController")
     @DisplayName("GET /api/medications/{id} → 404 for non-existent")
     void getMedication_nonExistent_returns404() {
         assertThat(getWithAuth("/api/medications/" + UUID.randomUUID(), adminToken, String.class)
