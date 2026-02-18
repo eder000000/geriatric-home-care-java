@@ -30,7 +30,7 @@ class MedicationApiTest extends BaseIntegrationTest {
     @DisplayName("GET /api/medications → 403 as ADMIN (role passes, no handler registered)")
     void medicationEndpoint_asAdmin_returns403() {
         assertThat(getWithAuth("/api/medications", adminToken, String.class)
-            .getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

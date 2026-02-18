@@ -1,0 +1,242 @@
+-------------------------------------------------------------------------------
+Test set: com.geriatriccare.integration.api.CarePlanApiTest
+-------------------------------------------------------------------------------
+Tests run: 9, Failures: 0, Errors: 7, Skipped: 0, Time elapsed: 38.22 s <<< FAILURE! -- in com.geriatriccare.integration.api.CarePlanApiTest
+com.geriatriccare.integration.api.CarePlanApiTest.createCarePlan_Success -- Time elapsed: 0.506 s <<< ERROR!
+org.springframework.web.client.RestClientException: Error while extracting response for type [class com.geriatriccare.dto.CarePlanResponse] and content type [application/json]
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:118)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1149)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1132)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:882)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:781)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:663)
+	at org.springframework.boot.test.web.client.TestRestTemplate.exchange(TestRestTemplate.java:711)
+	at com.geriatriccare.integration.api.CarePlanApiTest.createCarePlan_Success(CarePlanApiTest.java:139)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:406)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.read(AbstractJackson2HttpMessageConverter.java:354)
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:103)
+	... 10 more
+Caused by: com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 55] (through reference chain: com.geriatriccare.dto.CarePlanResponse["status"])
+	at com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)
+	at com.fasterxml.jackson.databind.DeserializationContext.weirdNumberException(DeserializationContext.java:2014)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleWeirdNumberValue(DeserializationContext.java:1275)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer._fromInteger(EnumDeserializer.java:330)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer.deserialize(EnumDeserializer.java:260)
+	at com.fasterxml.jackson.databind.deser.impl.MethodProperty.deserializeAndSet(MethodProperty.java:129)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:392)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:185)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:323)
+	at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2105)
+	at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1481)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:395)
+	... 12 more
+
+com.geriatriccare.integration.api.CarePlanApiTest.getCarePlan_Success -- Time elapsed: 0.660 s <<< ERROR!
+org.springframework.web.client.RestClientException: Error while extracting response for type [class com.geriatriccare.dto.CarePlanResponse] and content type [application/json]
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:118)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1149)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1132)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:882)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:781)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:663)
+	at org.springframework.boot.test.web.client.TestRestTemplate.exchange(TestRestTemplate.java:711)
+	at com.geriatriccare.integration.api.CarePlanApiTest.getCarePlan_Success(CarePlanApiTest.java:169)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:406)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.read(AbstractJackson2HttpMessageConverter.java:354)
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:103)
+	... 10 more
+Caused by: com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 55] (through reference chain: com.geriatriccare.dto.CarePlanResponse["status"])
+	at com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)
+	at com.fasterxml.jackson.databind.DeserializationContext.weirdNumberException(DeserializationContext.java:2014)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleWeirdNumberValue(DeserializationContext.java:1275)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer._fromInteger(EnumDeserializer.java:330)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer.deserialize(EnumDeserializer.java:260)
+	at com.fasterxml.jackson.databind.deser.impl.MethodProperty.deserializeAndSet(MethodProperty.java:129)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:392)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:185)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:323)
+	at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2105)
+	at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1481)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:395)
+	... 12 more
+
+com.geriatriccare.integration.api.CarePlanApiTest.activateCarePlan_Success -- Time elapsed: 0.498 s <<< ERROR!
+org.springframework.web.client.RestClientException: Error while extracting response for type [class com.geriatriccare.dto.CarePlanResponse] and content type [application/json]
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:118)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1149)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1132)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:882)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:781)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:663)
+	at org.springframework.boot.test.web.client.TestRestTemplate.exchange(TestRestTemplate.java:711)
+	at com.geriatriccare.integration.api.CarePlanApiTest.activateCarePlan_Success(CarePlanApiTest.java:259)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:406)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.read(AbstractJackson2HttpMessageConverter.java:354)
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:103)
+	... 10 more
+Caused by: com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 55] (through reference chain: com.geriatriccare.dto.CarePlanResponse["status"])
+	at com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)
+	at com.fasterxml.jackson.databind.DeserializationContext.weirdNumberException(DeserializationContext.java:2014)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleWeirdNumberValue(DeserializationContext.java:1275)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer._fromInteger(EnumDeserializer.java:330)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer.deserialize(EnumDeserializer.java:260)
+	at com.fasterxml.jackson.databind.deser.impl.MethodProperty.deserializeAndSet(MethodProperty.java:129)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:392)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:185)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:323)
+	at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2105)
+	at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1481)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:395)
+	... 12 more
+
+com.geriatriccare.integration.api.CarePlanApiTest.suspendCarePlan_Success -- Time elapsed: 0.601 s <<< ERROR!
+org.springframework.web.client.RestClientException: Error while extracting response for type [class com.geriatriccare.dto.CarePlanResponse] and content type [application/json]
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:118)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1149)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1132)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:882)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:781)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:663)
+	at org.springframework.boot.test.web.client.TestRestTemplate.exchange(TestRestTemplate.java:711)
+	at com.geriatriccare.integration.api.CarePlanApiTest.suspendCarePlan_Success(CarePlanApiTest.java:403)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:406)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.read(AbstractJackson2HttpMessageConverter.java:354)
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:103)
+	... 10 more
+Caused by: com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 55] (through reference chain: com.geriatriccare.dto.CarePlanResponse["status"])
+	at com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)
+	at com.fasterxml.jackson.databind.DeserializationContext.weirdNumberException(DeserializationContext.java:2014)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleWeirdNumberValue(DeserializationContext.java:1275)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer._fromInteger(EnumDeserializer.java:330)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer.deserialize(EnumDeserializer.java:260)
+	at com.fasterxml.jackson.databind.deser.impl.MethodProperty.deserializeAndSet(MethodProperty.java:129)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:392)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:185)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:323)
+	at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2105)
+	at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1481)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:395)
+	... 12 more
+
+com.geriatriccare.integration.api.CarePlanApiTest.completeCarePlan_Success -- Time elapsed: 0.435 s <<< ERROR!
+org.springframework.web.client.RestClientException: Error while extracting response for type [class com.geriatriccare.dto.CarePlanResponse] and content type [application/json]
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:118)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1149)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1132)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:882)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:781)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:663)
+	at org.springframework.boot.test.web.client.TestRestTemplate.exchange(TestRestTemplate.java:711)
+	at com.geriatriccare.integration.api.CarePlanApiTest.completeCarePlan_Success(CarePlanApiTest.java:458)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:406)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.read(AbstractJackson2HttpMessageConverter.java:354)
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:103)
+	... 10 more
+Caused by: com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 55] (through reference chain: com.geriatriccare.dto.CarePlanResponse["status"])
+	at com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)
+	at com.fasterxml.jackson.databind.DeserializationContext.weirdNumberException(DeserializationContext.java:2014)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleWeirdNumberValue(DeserializationContext.java:1275)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer._fromInteger(EnumDeserializer.java:330)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer.deserialize(EnumDeserializer.java:260)
+	at com.fasterxml.jackson.databind.deser.impl.MethodProperty.deserializeAndSet(MethodProperty.java:129)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:392)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:185)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:323)
+	at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2105)
+	at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1481)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:395)
+	... 12 more
+
+com.geriatriccare.integration.api.CarePlanApiTest.deleteCarePlan_Success -- Time elapsed: 0.487 s <<< ERROR!
+org.springframework.web.client.RestClientException: Error while extracting response for type [class com.geriatriccare.dto.CarePlanResponse] and content type [application/json]
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:118)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1149)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1132)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:882)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:781)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:663)
+	at org.springframework.boot.test.web.client.TestRestTemplate.exchange(TestRestTemplate.java:711)
+	at com.geriatriccare.integration.api.CarePlanApiTest.deleteCarePlan_Success(CarePlanApiTest.java:306)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:406)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.read(AbstractJackson2HttpMessageConverter.java:354)
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:103)
+	... 10 more
+Caused by: com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 55] (through reference chain: com.geriatriccare.dto.CarePlanResponse["status"])
+	at com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)
+	at com.fasterxml.jackson.databind.DeserializationContext.weirdNumberException(DeserializationContext.java:2014)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleWeirdNumberValue(DeserializationContext.java:1275)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer._fromInteger(EnumDeserializer.java:330)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer.deserialize(EnumDeserializer.java:260)
+	at com.fasterxml.jackson.databind.deser.impl.MethodProperty.deserializeAndSet(MethodProperty.java:129)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:392)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:185)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:323)
+	at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2105)
+	at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1481)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:395)
+	... 12 more
+
+com.geriatriccare.integration.api.CarePlanApiTest.updateCarePlan_Success -- Time elapsed: 0.413 s <<< ERROR!
+org.springframework.web.client.RestClientException: Error while extracting response for type [class com.geriatriccare.dto.CarePlanResponse] and content type [application/json]
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:118)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1149)
+	at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1132)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:882)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:781)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:663)
+	at org.springframework.boot.test.web.client.TestRestTemplate.exchange(TestRestTemplate.java:711)
+	at com.geriatriccare.integration.api.CarePlanApiTest.updateCarePlan_Success(CarePlanApiTest.java:208)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:406)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.read(AbstractJackson2HttpMessageConverter.java:354)
+	at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:103)
+	... 10 more
+Caused by: com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `com.geriatriccare.entity.CarePlanStatus` from number 500: index value outside legal index range [0..4]
+ at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 55] (through reference chain: com.geriatriccare.dto.CarePlanResponse["status"])
+	at com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)
+	at com.fasterxml.jackson.databind.DeserializationContext.weirdNumberException(DeserializationContext.java:2014)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleWeirdNumberValue(DeserializationContext.java:1275)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer._fromInteger(EnumDeserializer.java:330)
+	at com.fasterxml.jackson.databind.deser.std.EnumDeserializer.deserialize(EnumDeserializer.java:260)
+	at com.fasterxml.jackson.databind.deser.impl.MethodProperty.deserializeAndSet(MethodProperty.java:129)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:392)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:185)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:323)
+	at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2105)
+	at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1481)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:395)
+	... 12 more
+

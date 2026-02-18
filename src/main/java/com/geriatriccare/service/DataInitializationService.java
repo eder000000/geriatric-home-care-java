@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@org.springframework.context.annotation.Profile("!test")
 public class DataInitializationService implements ApplicationRunner {
     
     private static final Logger logger = LoggerFactory.getLogger(DataInitializationService.class);

@@ -105,10 +105,9 @@ void login_InvalidCredentials() {
     loginRequest.setEmail("test@example.com");
     loginRequest.setPassword("WrongPassword!");
     
-    // When & Then - TestRestTemplate throws exception on 401
-    assertThatThrownBy(() -> {
-        restTemplate.postForEntity("/api/auth/login", loginRequest, String.class);
-    }).isInstanceOf(Exception.class); // 401 causes HttpRetryException
+    // When & Then - 401 returned for invalid credentials
+    ResponseEntity<String> response = restTemplate.postForEntity("/api/auth/login", loginRequest, String.class);
+    assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.UNAUTHORIZED);
 }
 
 }

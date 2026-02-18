@@ -45,9 +45,9 @@ class VitalSignApiTest extends BaseIntegrationTest {
 
     @Test
     @DisplayName("GET /api/vital-signs → 403 as ADMIN (authenticated, no handler registered)")
-    void vitalSignEndpoint_asAdmin_returns403() {
+    void vitalSignEndpoint_asAdmin_returns404() {
         assertThat(getWithAuth("/api/vital-signs", adminToken, String.class)
-            .getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

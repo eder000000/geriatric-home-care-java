@@ -124,6 +124,7 @@
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/repository/VitalSignRepository.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/dto/CarePlanResponse.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/enums/TimePeriod.java
+/workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/exception/GlobalExceptionHandler.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/dto/ai/SymptomAnalysisResponse.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/repository/AlertRepository.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/dto/RegisterRequest.java

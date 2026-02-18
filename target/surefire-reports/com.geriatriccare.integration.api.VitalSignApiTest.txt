@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.geriatriccare.integration.api.VitalSignApiTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 6, Time elapsed: 0.976 s -- in com.geriatriccare.integration.api.VitalSignApiTest

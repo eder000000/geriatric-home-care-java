@@ -19,3 +19,8 @@ openai:
 logging:
   level:
     com.geriatriccare: DEBUG
+
+spring:
+  sql:
+    init:
+      mode: never

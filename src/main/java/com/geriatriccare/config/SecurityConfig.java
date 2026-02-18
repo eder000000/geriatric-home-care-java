@@ -67,6 +67,7 @@ public class SecurityConfig {
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers("/swagger-resources/**").permitAll()
                 .requestMatchers("/webjars/**").permitAll()
+                .requestMatchers("/error").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/patients/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER", "FAMILY")
                 .requestMatchers("/api/medications/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER")
