@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.geriatriccare.integration.CarePlanIntegrationTest
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 6.492 s <<< FAILURE! -- in com.geriatriccare.integration.CarePlanIntegrationTest
-com.geriatriccare.integration.CarePlanIntegrationTest.createCarePlan_Success -- Time elapsed: 0.118 s <<< ERROR!
+Tests run: 4, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 7.398 s <<< FAILURE! -- in com.geriatriccare.integration.CarePlanIntegrationTest
+com.geriatriccare.integration.CarePlanIntegrationTest.createCarePlan_Success -- Time elapsed: 0.161 s <<< ERROR!
 jakarta.servlet.ServletException: Request processing failed: java.lang.RuntimeException: Failed to create care plan: Current user not found
 	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1022)
 	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914)
