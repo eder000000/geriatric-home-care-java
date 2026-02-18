@@ -74,6 +74,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/care-plans/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER", "FAMILY")
                 .requestMatchers("/api/care-tasks/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER")
                 .requestMatchers("/api/care-plan-templates/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER")
+                .requestMatchers("/api/vital-signs/**").hasAnyRole("ADMIN", "PHYSICIAN", "CAREGIVER", "FAMILY")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

@@ -179,6 +179,7 @@
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/dto/role/RolePermissionsResponse.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/dto/vitalsign/VitalSignResponse.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/config/OpenAIConfig.java
+/workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/controller/VitalSignController.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/config/RolePermissionsConfig.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/exception/InvalidPasswordException.java
 /workspaces/geriatric-home-care-java/src/main/java/com/geriatriccare/dto/security/RateLimitInfo.java
