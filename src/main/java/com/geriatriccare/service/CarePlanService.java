@@ -240,9 +240,11 @@ public class CarePlanService {
      */
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        
-        return userRepository.findByEmail(email)
+        String identifier = auth.getName();
+
+        // identifier may be email (register token) or username (login token)
+        return userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByUsername(identifier))
                 .orElseThrow(() -> new RuntimeException("Current user not found"));
     }
     

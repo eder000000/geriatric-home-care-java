@@ -178,6 +178,7 @@ com/geriatriccare/controller/security/PasswordPolicyController.class
 com/geriatriccare/config/SecurityConfig.class
 com/geriatriccare/service/security/PasswordPolicyService.class
 com/geriatriccare/controller/api/v1/AuthController.class
+com/geriatriccare/exception/GlobalExceptionHandler.class
 com/geriatriccare/enums/VitalSignType.class
 com/geriatriccare/dto/MedicationResponse.class
 com/geriatriccare/enums/DataSensitivity.class
@@ -226,7 +227,6 @@ com/geriatriccare/service/CareTaskService.class
 com/geriatriccare/dto/user/ChangePasswordRequest.class
 com/geriatriccare/dto/role/RoleResponse.class
 com/geriatriccare/controller/ai/AIRecommendationController.class
-com/geriatriccare/dto/user/UserListResponse.class
 com/geriatriccare/dto/ai/CarePlanFocusArea.class
 com/geriatriccare/dto/security/EncryptionAlgorithm.class
 com/geriatriccare/repository/CarePlanRepository.class
