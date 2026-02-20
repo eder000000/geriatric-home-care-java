@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.geriatriccare.GeriatricHomeCareApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 8.211 s -- in com.geriatriccare.GeriatricHomeCareApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 7.362 s -- in com.geriatriccare.GeriatricHomeCareApplicationTests

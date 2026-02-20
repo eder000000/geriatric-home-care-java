@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.geriatriccare.unit.entity.MedicationTest
 -------------------------------------------------------------------------------
-Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.257 s -- in com.geriatriccare.unit.entity.MedicationTest
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.201 s -- in com.geriatriccare.unit.entity.MedicationTest

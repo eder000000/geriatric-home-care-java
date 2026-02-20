@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.geriatriccare.integration.api.CarePlanApiTest
 -------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 27.86 s -- in com.geriatriccare.integration.api.CarePlanApiTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.988 s -- in com.geriatriccare.integration.api.CarePlanApiTest
