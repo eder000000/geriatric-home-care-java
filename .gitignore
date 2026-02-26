@@ -261,3 +261,4 @@ target/test-classes/com/geriatriccare/unit/service/MedicationServiceTest$Invento
 target/test-classes/com/geriatriccare/unit/service/MedicationServiceTest$SearchMedicationTests.class
 target/test-classes/com/geriatriccare/unit/service/MedicationServiceTest$UpdateMedicationTests.class
 target/test-classes/com/geriatriccare/unit/service/PatientServiceTest.class
+geriatric-care-frontend/
