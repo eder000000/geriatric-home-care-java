@@ -1,0 +1,122 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "actions": "Actions",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noData": "No data available",
+    "error": "An error occurred",
+    "success": "Operation successful"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "patients": "Patients",
+    "medications": "Medications",
+    "carePlans": "Care Plans",
+    "vitalSigns": "Vital Signs",
+    "alerts": "Alerts",
+    "users": "Users",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your account",
+    "loginButton": "Sign in",
+    "invalidCredentials": "Invalid email or password",
+    "sessionExpired": "Your session has expired, please sign in again"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalPatients": "Total Patients",
+    "activeAlerts": "Active Alerts",
+    "carePlans": "Care Plans",
+    "medications": "Medications",
+    "recentAlerts": "Recent Alerts",
+    "noAlerts": "No active alerts"
+  },
+  "patients": {
+    "title": "Patients",
+    "newPatient": "New Patient",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "dateOfBirth": "Date of Birth",
+    "medicalConditions": "Medical Conditions",
+    "emergencyContact": "Emergency Contact",
+    "emergencyPhone": "Emergency Phone",
+    "searchPlaceholder": "Search patients...",
+    "deactivate": "Deactivate Patient",
+    "deactivateConfirm": "Are you sure you want to deactivate this patient?"
+  },
+  "medications": {
+    "title": "Medications",
+    "newMedication": "New Medication",
+    "name": "Medication Name",
+    "dosage": "Dosage",
+    "form": "Form",
+    "manufacturer": "Manufacturer",
+    "expirationDate": "Expiration Date",
+    "quantity": "Quantity in Stock",
+    "reorderLevel": "Reorder Level",
+    "lowStock": "Low Stock",
+    "expiringSoon": "Expiring Soon",
+    "expired": "Expired"
+  },
+  "vitalSigns": {
+    "title": "Vital Signs",
+    "record": "Record Vital Signs",
+    "bloodPressure": "Blood Pressure",
+    "heartRate": "Heart Rate",
+    "temperature": "Temperature",
+    "oxygenSaturation": "Oxygen Saturation",
+    "respiratoryRate": "Respiratory Rate",
+    "measuredAt": "Measured At",
+    "recordedBy": "Recorded By"
+  },
+  "carePlans": {
+    "title": "Care Plans",
+    "newCarePlan": "New Care Plan",
+    "planTitle": "Title",
+    "description": "Description",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "priority": "Priority",
+    "status": "Status",
+    "activate": "Activate",
+    "suspend": "Suspend",
+    "complete": "Complete"
+  },
+  "alerts": {
+    "title": "Alerts",
+    "severity": "Severity",
+    "critical": "Critical",
+    "warning": "Warning",
+    "acknowledge": "Acknowledge",
+    "patient": "Patient",
+    "triggeredAt": "Triggered At"
+  },
+  "roles": {
+    "ADMIN": "Administrator",
+    "PHYSICIAN": "Physician",
+    "CAREGIVER": "Caregiver",
+    "FAMILY": "Family Member"
+  }
+}
