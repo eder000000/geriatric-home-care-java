@@ -44,6 +44,7 @@ public class VitalSignService {
         vitalSign.setPosition(request.getPosition());
         vitalSign.setMeasurementMethod(request.getMeasurementMethod());
         vitalSign.setNotes(request.getNotes());
+        vitalSign.setGlucose(request.getGlucose());
         vitalSign.setRecordedBy(securityUtil.getCurrentUserId());
         vitalSign.setDeleted(false);
 
@@ -152,6 +153,11 @@ public class VitalSignService {
                         values.add(vs.getRespiratoryRate().doubleValue());
                     }
                     break;
+                case GLUCOSE:
+                    if (vs.getGlucose() != null) {
+                        values.add(vs.getGlucose());
+                    }
+                    break;
                 case OXYGEN_SATURATION:
                     if (vs.getOxygenSaturation() != null) {
                         values.add(vs.getOxygenSaturation().doubleValue());
@@ -226,6 +232,7 @@ public class VitalSignService {
             .temperature(vitalSign.getTemperature())
             .respiratoryRate(vitalSign.getRespiratoryRate())
             .oxygenSaturation(vitalSign.getOxygenSaturation())
+            .glucose(vitalSign.getGlucose())
             .position(vitalSign.getPosition())
             .measurementMethod(vitalSign.getMeasurementMethod())
             .notes(vitalSign.getNotes())

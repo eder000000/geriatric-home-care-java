@@ -21,6 +21,7 @@ public class VitalSignResponse {
     private Double temperature;
     private Integer respiratoryRate;
     private Integer oxygenSaturation;
+    private Double glucose;
     private String position;
     private String measurementMethod;
     private String notes;

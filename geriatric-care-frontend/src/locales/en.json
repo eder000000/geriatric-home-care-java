@@ -57,7 +57,14 @@
     "dateOfBirth": "Date of Birth",
     "searchPlaceholder": "Search patients...",
     "deactivate": "Deactivate Patient",
-    "deactivateConfirm": "Are you sure you want to deactivate this patient?"
+    "deactivateConfirm": "Are you sure you want to deactivate this patient?",
+    "medicalConditions": "Medical Conditions",
+    "emergencyContact": "Emergency Contact",
+    "emergencyContactName": "Contact Name",
+    "emergencyPhone": "Emergency Phone",
+    "personalInfo": "Personal Information",
+    "editPatient": "Edit Patient",
+    "years": "years"
   },
   "medications": {
     "title": "Medications",
@@ -73,7 +80,15 @@
     "heartRate": "Heart Rate",
     "temperature": "Temperature",
     "oxygenSaturation": "Oxygen Saturation",
-    "respiratoryRate": "Respiratory Rate"
+    "respiratoryRate": "Respiratory Rate",
+    "measuredAt": "Measured At",
+    "glucose": "Glucose",
+    "noData": "No vital signs records",
+    "selectPatient": "Select Patient",
+    "selectPatientPlaceholder": "Select a patient...",
+    "history": "History",
+    "systolic": "Systolic",
+    "diastolic": "Diastolic"
   },
   "carePlans": {
     "title": "Care Plans",

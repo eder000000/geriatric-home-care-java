@@ -66,12 +66,18 @@ public class VitalSign {
     @Column(name = "oxygen_saturation")
     private Integer oxygenSaturation;
 
+    // Blood Glucose (mg/dL)
+    @DecimalMin(value = "20.0", message = "Glucose must be at least 20 mg/dL")
+    @DecimalMax(value = "600.0", message = "Glucose must not exceed 600 mg/dL")
+    @Column(name = "glucose")
+    private Double glucose;
+
     // Context Information
     @Column(name = "position", length = 20)
-    private String position; // SITTING, STANDING, LYING
+    private String position;
 
     @Column(name = "measurement_method", length = 20)
-    private String measurementMethod; // MANUAL, AUTOMATED
+    private String measurementMethod;
 
     @Column(name = "notes", length = 500)
     private String notes;

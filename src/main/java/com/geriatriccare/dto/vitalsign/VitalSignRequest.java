@@ -15,7 +15,7 @@ public class VitalSignRequest {
     @NotNull(message = "Patient ID is required")
     private UUID patientId;
 
-    private LocalDateTime measuredAt; // If null, use current time
+    private LocalDateTime measuredAt;
 
     @Min(value = 40, message = "Systolic BP must be at least 40")
     @Max(value = 250, message = "Systolic BP must not exceed 250")
@@ -41,8 +41,12 @@ public class VitalSignRequest {
     @Max(value = 100, message = "Oxygen saturation must not exceed 100")
     private Integer oxygenSaturation;
 
-    private String position; // SITTING, STANDING, LYING
-    private String measurementMethod; // MANUAL, AUTOMATED
+    @DecimalMin(value = "20.0", message = "Glucose must be at least 20 mg/dL")
+    @DecimalMax(value = "600.0", message = "Glucose must not exceed 600 mg/dL")
+    private Double glucose;
+
+    private String position;
+    private String measurementMethod;
 
     @Size(max = 500, message = "Notes must not exceed 500 characters")
     private String notes;

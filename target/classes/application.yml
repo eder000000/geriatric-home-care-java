@@ -5,8 +5,7 @@ spring:
 
   sql:
     init:
-      mode: always
-      data-locations: classpath:data.sql
+      mode: never
   
   h2:
     console:
@@ -30,7 +29,7 @@ app:
     secret: bXlTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25UaGF0SXNTZWN1cmVFbm91Z2hGb3JITUFDMjU2QWxnb3JpdGht
     expiration: 86400
   cors:
-    allowed-origins: http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://localhost:8080
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://localhost:8080}
   
   # Default Owner User Configuration
   default:
