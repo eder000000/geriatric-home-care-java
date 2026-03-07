@@ -11,6 +11,7 @@ import com.geriatriccare.repository.VitalSignRepository;
 import com.geriatriccare.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class VitalSignService {
 
     private final VitalSignRepository vitalSignRepository;
     private final SecurityUtil securityUtil;
+    private final AlertService alertService;
+
+    public VitalSignService(VitalSignRepository vitalSignRepository,
+                            SecurityUtil securityUtil,
+                            @Lazy AlertService alertService) {
+        this.vitalSignRepository = vitalSignRepository;
+        this.securityUtil = securityUtil;
+        this.alertService = alertService;
+    }
 
     @Transactional
     public VitalSignResponse recordVitalSign(VitalSignRequest request) {
@@ -50,6 +59,12 @@ public class VitalSignService {
 
         vitalSign = vitalSignRepository.save(vitalSign);
         log.info("Vital sign recorded successfully: {}", vitalSign.getId());
+
+        try {
+            alertService.evaluateVitalSign(vitalSign);
+        } catch (Exception e) {
+            log.warn("Alert evaluation failed: {}", e.getMessage());
+        }
 
         return convertToResponse(vitalSign);
     }
@@ -103,15 +118,15 @@ public class VitalSignService {
     public VitalSignStatistics calculateStatistics(UUID patientId, VitalSignType type, int days) {
         LocalDateTime start = LocalDateTime.now().minusDays(days);
         LocalDateTime end = LocalDateTime.now();
-        
+
         List<VitalSign> vitalSigns = vitalSignRepository.findByPatientIdAndDateRange(patientId, start, end);
-        
+
         if (vitalSigns.isEmpty()) {
             throw new ResourceNotFoundException("No vital signs found for the specified period");
         }
 
         List<Double> values = extractValues(vitalSigns, type);
-        
+
         if (values.isEmpty()) {
             throw new ResourceNotFoundException("No data available for " + type);
         }
@@ -130,42 +145,28 @@ public class VitalSignService {
 
     private List<Double> extractValues(List<VitalSign> vitalSigns, VitalSignType type) {
         List<Double> values = new ArrayList<>();
-        
         for (VitalSign vs : vitalSigns) {
             switch (type) {
                 case BLOOD_PRESSURE:
-                    if (vs.getBloodPressureSystolic() != null) {
-                        values.add(vs.getBloodPressureSystolic().doubleValue());
-                    }
+                    if (vs.getBloodPressureSystolic() != null) values.add(vs.getBloodPressureSystolic().doubleValue());
                     break;
                 case HEART_RATE:
-                    if (vs.getHeartRate() != null) {
-                        values.add(vs.getHeartRate().doubleValue());
-                    }
+                    if (vs.getHeartRate() != null) values.add(vs.getHeartRate().doubleValue());
                     break;
                 case TEMPERATURE:
-                    if (vs.getTemperature() != null) {
-                        values.add(vs.getTemperature());
-                    }
+                    if (vs.getTemperature() != null) values.add(vs.getTemperature());
                     break;
                 case RESPIRATORY_RATE:
-                    if (vs.getRespiratoryRate() != null) {
-                        values.add(vs.getRespiratoryRate().doubleValue());
-                    }
+                    if (vs.getRespiratoryRate() != null) values.add(vs.getRespiratoryRate().doubleValue());
                     break;
                 case GLUCOSE:
-                    if (vs.getGlucose() != null) {
-                        values.add(vs.getGlucose());
-                    }
+                    if (vs.getGlucose() != null) values.add(vs.getGlucose());
                     break;
                 case OXYGEN_SATURATION:
-                    if (vs.getOxygenSaturation() != null) {
-                        values.add(vs.getOxygenSaturation().doubleValue());
-                    }
+                    if (vs.getOxygenSaturation() != null) values.add(vs.getOxygenSaturation().doubleValue());
                     break;
             }
         }
-        
         return values;
     }
 
@@ -177,48 +178,27 @@ public class VitalSignService {
         List<Double> sorted = new ArrayList<>(values);
         Collections.sort(sorted);
         int size = sorted.size();
-        
-        if (size % 2 == 0) {
-            return (sorted.get(size / 2 - 1) + sorted.get(size / 2)) / 2.0;
-        } else {
-            return sorted.get(size / 2);
-        }
+        return size % 2 == 0
+            ? (sorted.get(size / 2 - 1) + sorted.get(size / 2)) / 2.0
+            : sorted.get(size / 2);
     }
 
     private Double calculateStandardDeviation(List<Double> values) {
         double mean = calculateMean(values);
-        double variance = values.stream()
-            .mapToDouble(v -> Math.pow(v - mean, 2))
-            .average()
-            .orElse(0.0);
+        double variance = values.stream().mapToDouble(v -> Math.pow(v - mean, 2)).average().orElse(0.0);
         return Math.sqrt(variance);
     }
 
     private TrendDirection calculateTrend(List<Double> values) {
-        if (values.size() < 2) {
-            return TrendDirection.STABLE;
-        }
-
+        if (values.size() < 2) return TrendDirection.STABLE;
         int n = values.size();
         double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-        
         for (int i = 0; i < n; i++) {
-            sumX += i;
-            sumY += values.get(i);
-            sumXY += i * values.get(i);
-            sumX2 += i * i;
+            sumX += i; sumY += values.get(i);
+            sumXY += i * values.get(i); sumX2 += i * i;
         }
-        
         double slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-        double threshold = 0.1;
-        
-        if (slope > threshold) {
-            return TrendDirection.INCREASING;
-        } else if (slope < -threshold) {
-            return TrendDirection.DECREASING;
-        } else {
-            return TrendDirection.STABLE;
-        }
+        return slope > 0.1 ? TrendDirection.INCREASING : slope < -0.1 ? TrendDirection.DECREASING : TrendDirection.STABLE;
     }
 
     private VitalSignResponse convertToResponse(VitalSign vitalSign) {

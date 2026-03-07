@@ -13,6 +13,7 @@ import com.geriatriccare.entity.User;
 import com.geriatriccare.repository.DrugInteractionRepository;
 import com.geriatriccare.repository.MedicationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -47,12 +48,14 @@ public class MedicationService {
         return mapEntityToResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public MedicationResponse getMedicationById(UUID id) {
         Medication medication = medicationRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new RuntimeException("Medication not found with id: " + id));
         return mapEntityToResponse(medication);
     }
 
+    @Transactional(readOnly = true)
     public List<MedicationResponse> getAllMedications() {
         return medicationRepository.findByIsActiveTrue()
                 .stream()

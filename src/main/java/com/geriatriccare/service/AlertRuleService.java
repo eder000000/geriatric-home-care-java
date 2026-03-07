@@ -76,7 +76,9 @@ public class AlertRuleService {
 
     @Transactional(readOnly = true)
     public List<AlertRule> getApplicableRules(UUID patientId, VitalSignType type) {
-        return alertRuleRepository.findApplicableRules(patientId, type);
+        List<com.geriatriccare.entity.AlertRule> rules = alertRuleRepository.findApplicableRules(patientId, type);
+        log.info("Found {} applicable rules for type {} and patient {}", rules.size(), type, patientId);
+        return rules;
     }
 
     @Transactional

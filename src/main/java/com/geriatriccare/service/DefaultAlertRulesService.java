@@ -56,7 +56,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.GREATER_THAN,
             180.0,
             null,
-            "⚠️ CRITICAL: Blood pressure systolic %.0f mmHg - Hypertensive crisis risk",
+            "⚠️ CRÍTICO: Presión arterial sistólica %.0f mmHg - Riesgo de crisis hipertensiva",
             15 // 15 min cooldown for critical
         ));
 
@@ -67,7 +67,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.LESS_THAN,
             90.0,
             null,
-            "⚠️ CRITICAL: Blood pressure systolic %.0f mmHg - Severe hypotension",
+            "⚠️ CRÍTICO: Presión arterial sistólica %.0f mmHg - Hipotensión severa",
             15
         ));
 
@@ -78,7 +78,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.BETWEEN,
             160.0,
             180.0,
-            "⚠️ WARNING: Blood pressure systolic %.0f mmHg - Stage 2 hypertension",
+            "⚠️ ADVERTENCIA: Presión arterial sistólica %.0f mmHg - Hipertensión etapa 2",
             30
         ));
 
@@ -89,7 +89,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.BETWEEN,
             90.0,
             100.0,
-            "⚠️ WARNING: Blood pressure systolic %.0f mmHg - Mild hypotension",
+            "⚠️ ADVERTENCIA: Presión arterial sistólica %.0f mmHg - Hipotensión leve",
             30
         ));
 
@@ -104,7 +104,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.GREATER_THAN,
             120.0,
             null,
-            "⚠️ CRITICAL: Heart rate %.0f bpm - Severe tachycardia",
+            "⚠️ CRÍTICO: Frecuencia cardíaca %.0f lpm - Taquicardia severa",
             15
         ));
 
@@ -115,7 +115,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.LESS_THAN,
             50.0,
             null,
-            "⚠️ CRITICAL: Heart rate %.0f bpm - Severe bradycardia",
+            "⚠️ CRÍTICO: Frecuencia cardíaca %.0f lpm - Bradicardia severa",
             15
         ));
 
@@ -126,7 +126,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.BETWEEN,
             100.0,
             120.0,
-            "⚠️ WARNING: Heart rate %.0f bpm - Tachycardia",
+            "⚠️ ADVERTENCIA: Frecuencia cardíaca %.0f lpm - Taquicardia",
             30
         ));
 
@@ -137,7 +137,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.BETWEEN,
             50.0,
             60.0,
-            "⚠️ WARNING: Heart rate %.0f bpm - Bradycardia",
+            "⚠️ ADVERTENCIA: Frecuencia cardíaca %.0f lpm - Bradicardia",
             30
         ));
 
@@ -152,7 +152,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.GREATER_THAN,
             39.0,
             null,
-            "⚠️ CRITICAL: Temperature %.1f°C - High fever",
+            "⚠️ CRÍTICO: Temperatura %.1f°C - Fiebre alta",
             15
         ));
 
@@ -163,7 +163,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.LESS_THAN,
             35.0,
             null,
-            "⚠️ CRITICAL: Temperature %.1f°C - Hypothermia risk",
+            "⚠️ CRÍTICO: Temperatura %.1f°C - Riesgo de hipotermia",
             15
         ));
 
@@ -174,7 +174,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.BETWEEN,
             38.0,
             39.0,
-            "⚠️ WARNING: Temperature %.1f°C - Fever",
+            "⚠️ ADVERTENCIA: Temperatura %.1f°C - Fiebre moderada",
             30
         ));
 
@@ -185,7 +185,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.BETWEEN,
             35.0,
             35.5,
-            "⚠️ WARNING: Temperature %.1f°C - Low body temperature",
+            "⚠️ ADVERTENCIA: Temperatura %.1f°C - Temperatura corporal baja",
             30
         ));
 
@@ -200,7 +200,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.LESS_THAN,
             88.0,
             null,
-            "⚠️ CRITICAL: Oxygen saturation %.0f%% - Severe hypoxemia",
+            "⚠️ CRÍTICO: Saturación de oxígeno %.0f%% - Hipoxia severa",
             10 // Very short cooldown for O2
         ));
 
@@ -211,7 +211,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.BETWEEN,
             88.0,
             92.0,
-            "⚠️ WARNING: Oxygen saturation %.0f%% - Hypoxemia",
+            "⚠️ ADVERTENCIA: Saturación de oxígeno %.0f%% - Hipoxia leve",
             20
         ));
 
@@ -226,7 +226,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.GREATER_THAN,
             30.0,
             null,
-            "⚠️ CRITICAL: Respiratory rate %.0f breaths/min - Severe tachypnea",
+            "⚠️ CRÍTICO: Frecuencia respiratoria %.0f rpm - Taquipnea severa",
             15
         ));
 
@@ -237,7 +237,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.LESS_THAN,
             8.0,
             null,
-            "⚠️ CRITICAL: Respiratory rate %.0f breaths/min - Severe bradypnea",
+            "⚠️ CRÍTICO: Frecuencia respiratoria %.0f rpm - Bradipnea severa",
             15
         ));
 
@@ -248,7 +248,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.BETWEEN,
             24.0,
             30.0,
-            "⚠️ WARNING: Respiratory rate %.0f breaths/min - Tachypnea",
+            "⚠️ ADVERTENCIA: Frecuencia respiratoria %.0f rpm - Taquipnea",
             30
         ));
 
@@ -259,7 +259,7 @@ public class DefaultAlertRulesService {
             ComparisonOperator.BETWEEN,
             8.0,
             12.0,
-            "⚠️ WARNING: Respiratory rate %.0f breaths/min - Bradypnea",
+            "⚠️ ADVERTENCIA: Frecuencia respiratoria %.0f rpm - Bradipnea",
             30
         ));
 
